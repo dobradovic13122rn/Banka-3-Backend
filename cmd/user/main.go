@@ -1,15 +1,19 @@
 package main
 
 import (
+	"banka-raf/gen/notification"
+	"context"
 	"fmt"
 	"log"
 	"net"
 	"os"
+	"time"
 
 	"banka-raf/gen/user"
 	internalUser "banka-raf/internal/user"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 )
 
@@ -29,7 +33,27 @@ func main() {
 	reflection.Register(srv)
 
 	log.Printf("user service listening on :%s", port)
+	time.Sleep(5 * time.Second)
+	conn, err := grpc.Dial(
+		"localhost:50052",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	client := notification.NewNotificationServiceClient(conn)
+
+	resp, err := client.SendActivationEmail(context.Background(), &notification.ActivationMailRequest{
+		ToAddr: "pajicaleksa.12@gmail.com",
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("resp: %s", resp)
+
 	if err := srv.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
+
 }

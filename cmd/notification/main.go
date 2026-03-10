@@ -15,8 +15,9 @@ import (
 func main() {
 	port := os.Getenv("NOTIFICATION_PORT")
 	if port == "" {
-		port = "50052"
+		port = "50051"
 	}
+	log.Printf("Listening on port %s", port)
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
