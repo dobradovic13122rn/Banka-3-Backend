@@ -7,11 +7,15 @@ service NotificationService{
 }
 
 message ConfirmationMailRequest{
-  string email = 1;
+  string to_addr = 1; //comma separated addresses of receivers
+  string subject = 2;
+  string body = 3;
 }
 
 message ActivationMailRequest{
-  string email =1;
+  string to_addr = 1; //comma separated addresses of receivers
+  string subject = 2;
+  string body = 3;
 }
 
 message SuccessResponse{

@@ -23,7 +23,9 @@ const (
 
 type ConfirmationMailRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	ToAddr        string                 `protobuf:"bytes,1,opt,name=to_addr,json=toAddr,proto3" json:"to_addr,omitempty"` //comma separated addresses of receivers
+	Subject       string                 `protobuf:"bytes,2,opt,name=subject,proto3" json:"subject,omitempty"`
+	Body          string                 `protobuf:"bytes,3,opt,name=body,proto3" json:"body,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -58,16 +60,32 @@ func (*ConfirmationMailRequest) Descriptor() ([]byte, []int) {
 	return file_notification_notification_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ConfirmationMailRequest) GetEmail() string {
+func (x *ConfirmationMailRequest) GetToAddr() string {
 	if x != nil {
-		return x.Email
+		return x.ToAddr
+	}
+	return ""
+}
+
+func (x *ConfirmationMailRequest) GetSubject() string {
+	if x != nil {
+		return x.Subject
+	}
+	return ""
+}
+
+func (x *ConfirmationMailRequest) GetBody() string {
+	if x != nil {
+		return x.Body
 	}
 	return ""
 }
 
 type ActivationMailRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	ToAddr        string                 `protobuf:"bytes,1,opt,name=to_addr,json=toAddr,proto3" json:"to_addr,omitempty"` //comma separated addresses of receivers
+	Subject       string                 `protobuf:"bytes,2,opt,name=subject,proto3" json:"subject,omitempty"`
+	Body          string                 `protobuf:"bytes,3,opt,name=body,proto3" json:"body,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -102,9 +120,23 @@ func (*ActivationMailRequest) Descriptor() ([]byte, []int) {
 	return file_notification_notification_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ActivationMailRequest) GetEmail() string {
+func (x *ActivationMailRequest) GetToAddr() string {
 	if x != nil {
-		return x.Email
+		return x.ToAddr
+	}
+	return ""
+}
+
+func (x *ActivationMailRequest) GetSubject() string {
+	if x != nil {
+		return x.Subject
+	}
+	return ""
+}
+
+func (x *ActivationMailRequest) GetBody() string {
+	if x != nil {
+		return x.Body
 	}
 	return ""
 }
@@ -157,11 +189,15 @@ var File_notification_notification_proto protoreflect.FileDescriptor
 
 const file_notification_notification_proto_rawDesc = "" +
 	"\n" +
-	"\x1fnotification/notification.proto\x12\fnotification\"/\n" +
-	"\x17ConfirmationMailRequest\x12\x14\n" +
-	"\x05email\x18\x01 \x01(\tR\x05email\"-\n" +
-	"\x15ActivationMailRequest\x12\x14\n" +
-	"\x05email\x18\x01 \x01(\tR\x05email\"1\n" +
+	"\x1fnotification/notification.proto\x12\fnotification\"`\n" +
+	"\x17ConfirmationMailRequest\x12\x17\n" +
+	"\ato_addr\x18\x01 \x01(\tR\x06toAddr\x12\x18\n" +
+	"\asubject\x18\x02 \x01(\tR\asubject\x12\x12\n" +
+	"\x04body\x18\x03 \x01(\tR\x04body\"^\n" +
+	"\x15ActivationMailRequest\x12\x17\n" +
+	"\ato_addr\x18\x01 \x01(\tR\x06toAddr\x12\x18\n" +
+	"\asubject\x18\x02 \x01(\tR\asubject\x12\x12\n" +
+	"\x04body\x18\x03 \x01(\tR\x04body\"1\n" +
 	"\x0fSuccessResponse\x12\x1e\n" +
 	"\n" +
 	"successful\x18\x01 \x01(\bR\n" +

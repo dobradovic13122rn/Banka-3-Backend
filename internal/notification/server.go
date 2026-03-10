@@ -10,8 +10,6 @@ type Server struct {
 }
 
 func (s *Server) SendConfirmationEmail(ctx context.Context, req *notification.ConfirmationMailRequest) (*notification.SuccessResponse, error) {
-	//email := req.Email
-
 	//todo implement logic for sending an email
 
 	return &notification.SuccessResponse{
@@ -22,6 +20,7 @@ func (s *Server) SendConfirmationEmail(ctx context.Context, req *notification.Co
 
 func (s *Server) SendActivationEmail(ctx context.Context, req *notification.ActivationMailRequest) (*notification.SuccessResponse, error) {
 	//todo implement logic for sending an email with link
+
 	return &notification.SuccessResponse{
 		Successful: true,
 	}, nil
