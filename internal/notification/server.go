@@ -20,12 +20,35 @@ type Server struct {
 }
 
 func (s *Server) SendConfirmationEmail(ctx context.Context, req *notification.ConfirmationMailRequest) (*notification.SuccessResponse, error) {
-	//todo implement logic for sending an email
+	log.Println("Sending confirmation email")
+
+	//lista primaoca mejla
+	to := strings.Split(req.ToAddr, ",")
+
+	//parsiranje templejta
+	templ, err := template.ParseFiles("../templates/email_confirmation.tmpl")
+	if err != nil {
+		log.Println("Cannot parse confirmation.html:", err)
+		return &notification.SuccessResponse{Successful: false}, nil
+	}
+
+	//renderovanje templejta
+	var rendered bytes.Buffer
+	if err := templ.Execute(&rendered, req); err != nil {
+		log.Println("Cannot execute confirmation.html:", err)
+		return &notification.SuccessResponse{Successful: false}, nil
+	}
+
+	// slanje email-a
+	err = sendHTMLEmail(to, "Confirm your Banka 3 account", rendered.String())
+	if err != nil {
+		log.Println("Couldn't send confirmation email:", err)
+		return &notification.SuccessResponse{Successful: false}, nil
+	}
 
 	return &notification.SuccessResponse{
 		Successful: true,
 	}, nil
-
 }
 
 func (s *Server) SendActivationEmail(ctx context.Context, req *notification.ActivationMailRequest) (*notification.SuccessResponse, error) {
