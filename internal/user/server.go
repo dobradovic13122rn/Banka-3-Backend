@@ -52,7 +52,7 @@ func (s *Server) GenerateAccessToken(email string) (string, error) {
 	now := time.Now()
 	claims := jwt.RegisteredClaims{
 		Subject:   email,
-		ExpiresAt: jwt.NewNumericDate(now.Add(24 * time.Hour * 7)),
+		ExpiresAt: jwt.NewNumericDate(now.Add(15 * time.Minute)),
 		IssuedAt:  jwt.NewNumericDate(now),
 	}
 
