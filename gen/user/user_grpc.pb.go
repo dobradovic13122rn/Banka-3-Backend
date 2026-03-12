@@ -27,6 +27,8 @@ const (
 	UserService_RequestPasswordReset_FullMethodName      = "/user.UserService/RequestPasswordReset"
 	UserService_RequestInitialPasswordSet_FullMethodName = "/user.UserService/RequestInitialPasswordSet"
 	UserService_SetPasswordWithToken_FullMethodName      = "/user.UserService/SetPasswordWithToken"
+	UserService_CreateClientAccount_FullMethodName       = "/user.UserService/CreateClientAccount"
+	UserService_CreateEmployeeAccount_FullMethodName     = "/user.UserService/CreateEmployeeAccount"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -41,6 +43,8 @@ type UserServiceClient interface {
 	RequestPasswordReset(ctx context.Context, in *PasswordActionRequest, opts ...grpc.CallOption) (*PasswordActionResponse, error)
 	RequestInitialPasswordSet(ctx context.Context, in *PasswordActionRequest, opts ...grpc.CallOption) (*PasswordActionResponse, error)
 	SetPasswordWithToken(ctx context.Context, in *SetPasswordWithTokenRequest, opts ...grpc.CallOption) (*SetPasswordWithTokenResponse, error)
+	CreateClientAccount(ctx context.Context, in *CreateClientRequest, opts ...grpc.CallOption) (*CreateClientResponse, error)
+	CreateEmployeeAccount(ctx context.Context, in *CreateEmployeeRequest, opts ...grpc.CallOption) (*CreateEmployeeResponse, error)
 }
 
 type userServiceClient struct {
@@ -131,6 +135,26 @@ func (c *userServiceClient) SetPasswordWithToken(ctx context.Context, in *SetPas
 	return out, nil
 }
 
+func (c *userServiceClient) CreateClientAccount(ctx context.Context, in *CreateClientRequest, opts ...grpc.CallOption) (*CreateClientResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateClientResponse)
+	err := c.cc.Invoke(ctx, UserService_CreateClientAccount_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) CreateEmployeeAccount(ctx context.Context, in *CreateEmployeeRequest, opts ...grpc.CallOption) (*CreateEmployeeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateEmployeeResponse)
+	err := c.cc.Invoke(ctx, UserService_CreateEmployeeAccount_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
@@ -143,6 +167,8 @@ type UserServiceServer interface {
 	RequestPasswordReset(context.Context, *PasswordActionRequest) (*PasswordActionResponse, error)
 	RequestInitialPasswordSet(context.Context, *PasswordActionRequest) (*PasswordActionResponse, error)
 	SetPasswordWithToken(context.Context, *SetPasswordWithTokenRequest) (*SetPasswordWithTokenResponse, error)
+	CreateClientAccount(context.Context, *CreateClientRequest) (*CreateClientResponse, error)
+	CreateEmployeeAccount(context.Context, *CreateEmployeeRequest) (*CreateEmployeeResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -176,6 +202,12 @@ func (UnimplementedUserServiceServer) RequestInitialPasswordSet(context.Context,
 }
 func (UnimplementedUserServiceServer) SetPasswordWithToken(context.Context, *SetPasswordWithTokenRequest) (*SetPasswordWithTokenResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SetPasswordWithToken not implemented")
+}
+func (UnimplementedUserServiceServer) CreateClientAccount(context.Context, *CreateClientRequest) (*CreateClientResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateClientAccount not implemented")
+}
+func (UnimplementedUserServiceServer) CreateEmployeeAccount(context.Context, *CreateEmployeeRequest) (*CreateEmployeeResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateEmployeeAccount not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 func (UnimplementedUserServiceServer) testEmbeddedByValue()                     {}
@@ -342,6 +374,42 @@ func _UserService_SetPasswordWithToken_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_CreateClientAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateClientRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).CreateClientAccount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_CreateClientAccount_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).CreateClientAccount(ctx, req.(*CreateClientRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_CreateEmployeeAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateEmployeeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).CreateEmployeeAccount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_CreateEmployeeAccount_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).CreateEmployeeAccount(ctx, req.(*CreateEmployeeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -380,6 +448,14 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetPasswordWithToken",
 			Handler:    _UserService_SetPasswordWithToken_Handler,
+		},
+		{
+			MethodName: "CreateClientAccount",
+			Handler:    _UserService_CreateClientAccount_Handler,
+		},
+		{
+			MethodName: "CreateEmployeeAccount",
+			Handler:    _UserService_CreateEmployeeAccount_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

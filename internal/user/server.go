@@ -23,6 +23,9 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
+	"gorm.io/gorm"
+	"slices"
+	"log"
 )
 
 const (
@@ -39,15 +42,34 @@ type Server struct {
 	accessJwtSecret  string
 	refreshJwtSecret string
 	database         *sql.DB
+	db_gorm          *gorm.DB
 }
 
-func NewServer(accessJwtSecret string, refreshJwtSecret string, database *sql.DB) *Server {
+func generateSalt() ([]byte, error) {
+	salt := make([]byte, 16)
+	_, err := rand.Read(salt)
+	if err != nil {
+		return nil, err
+	}
+	return salt, nil
+}
+
+func hashPassword(password string, salt []byte) []byte {
+	hashed := sha256.New()
+	hashed.Write(salt)
+	hashed.Write([]byte(password))
+	return hashed.Sum(nil)
+}
+
+func NewServer(accessJwtSecret string, refreshJwtSecret string, database *sql.DB, gorm_db *gorm.DB) *Server {
 	return &Server{
 		accessJwtSecret:  accessJwtSecret,
 		refreshJwtSecret: refreshJwtSecret,
 		database:         database,
+		db_gorm:          gorm_db,
 	}
 }
+
 
 func (s *Server) GetEmployeeById(ctx context.Context, req *userpb.GetEmployeeByIdRequest) (*user.EmployeeResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "not implemented")
@@ -355,4 +377,77 @@ func buildPasswordLink(baseURL string, token string) (string, error) {
 	parsedURL.RawQuery = query.Encode()
 
 	return parsedURL.String(), nil
+}
+
+func (s *Server) CreateClientAccount(ctx context.Context, req *userpb.CreateClientRequest) (*userpb.CreateClientResponse, error){
+	is_null := func(str string) bool{
+		return strings.TrimSpace(str) == ""
+	}
+	vals := []string{req.FirstName, req.LastName, req.Gender, req.Email, req.PhoneNumber,
+	req.Address}
+	for _, val := range vals{
+		if is_null(val){
+			log.Printf("The value %s is null", val)
+		}
+	}
+	if req.Gender != "M" && req.Gender != "F"{
+		return nil, errors.New("Gender must be M of F")
+	}
+
+	salt, salt_err := generateSalt()
+	if salt_err != nil{
+		log.Printf("Error generating salt %s", salt_err.Error())
+	}
+	
+	client := Clients{First_name: req.FirstName,
+		Last_name: req.LastName, Date_of_birth: time.Unix(req.DateOfBirth, 0),
+		Gender: req.Gender, Email: req.Email, Phone_number: req.PhoneNumber,
+		Address: req.Address, Password: hashPassword(req.Password, salt),
+		Salt_password: salt}
+	err := s.create_client_user(client)
+	if err != nil{
+		//return nil, errors.New(err.Error())
+		// just log for now
+		log.Printf("Error in user creation%s", err.Error())
+	}
+	return &userpb.CreateClientResponse{Valid: true}, nil
+
+}
+
+func (s *Server) CreateEmployeeAccount(ctx context.Context, req *userpb.CreateEmployeeRequest) (*userpb.CreateEmployeeResponse, error){
+	is_null := func(str string) bool{
+		return strings.TrimSpace(str) == ""
+	}
+	vals := []string{req.FirstName, req.LastName, req.Gender, req.Email, req.PhoneNumber,
+	req.Address, req.Username}
+	if slices.ContainsFunc(vals, is_null) {
+		//return nil, status.Error(codes.InvalidArgument, "Non-nullable field is null")
+		log.Print("One of the fucking values is null for create employy, and we can't have that")
+		}
+	if req.Gender != "M" && req.Gender != "F"{
+		log.Print("create employee gender must be M or F")
+		return nil, errors.New("Gender must be M of F")
+	}
+
+	salt, salt_err := generateSalt()
+	if salt_err != nil{
+		log.Printf("Error generating salt %s", salt_err.Error())
+	}
+	
+	employee := Employees{First_name: req.FirstName,
+		Last_name: req.LastName, Date_of_birth: time.Unix(req.DateOfBirth, 0),
+		Gender: req.Gender, Email: req.Email, Phone_number: req.PhoneNumber,
+		Address: req.Address, Username: req.Username, Position: req.Position,
+		Department: req.Department, Salt_password: salt,
+		Password: hashPassword(req.Password, salt)}
+
+	err := s.create_employee_user(employee)
+
+	if err != nil{
+		//return nil, errors.New(err.Error())
+		//log.Printf("%s", err.Error())
+		log.Printf("Error in employee creation %s", err.Error())
+	}
+	return &userpb.CreateEmployeeResponse{Valid: true}, nil
+
 }
