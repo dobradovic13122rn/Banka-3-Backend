@@ -61,3 +61,32 @@ CREATE TABLE IF NOT EXISTS password_action_tokens (
     PRIMARY KEY (email, action_type),
     CHECK (action_type IN ('reset', 'initial_set'))
 );
+
+CREATE TABLE IF NOT EXISTS currency (
+    label           VARCHAR(8)      PRIMARY KEY,
+    name            VARCHAR(64)     NOT NULL,
+    symbol          VARCHAR(8)      NOT NULL,
+    countries       TEXT            NOT NULL,
+    description     VARCHAR(1023)   NOT NULL,
+    active          BOOLEAN NOT     NULL DEFAULT TRUE
+);
+
+CREATE TYPE account_type AS ENUM ('personal', 'business');
+
+CREATE TABLE IF NOT EXISTS account (
+    number              VARCHAR(20)     PRIMARY KEY,
+    name                VARCHAR(127)    NOT NULL,
+    owner               BIGINT          NOT NULL REFERENCES clients(id) ON DELETE CASCADE, -- cascade delete??
+    balance             BIGINT          NOT NULL DEFAULT 0,
+    created_by          BIGINT          NOT NULL REFERENCES employees(id) ON DELETE SET NULL,
+    created_at          DATE            NOT NULL DEFAULT CURRENT_DATE,
+    valid_until         DATE            NOT NULL,
+    currency            VARCHAR(8)      NOT NULL REFERENCES currency(label) ON UPDATE CASCADE ON DELETE RESTRICT,
+    active              BOOLEAN         NOT NULL DEFAULT FALSE,
+    type                account_type    NOT NULL,
+    maintainance_cost   BIGINT          NOT NULL,
+    daily_limit         BIGINT,
+    monthly_limit       BIGINT,
+    daily_expenditure   BIGINT,
+    monthly_expenditure BIGINT,
+);
