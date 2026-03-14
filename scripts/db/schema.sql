@@ -90,21 +90,35 @@ CREATE TABLE IF NOT EXISTS account (
     daily_limit         BIGINT,
     monthly_limit       BIGINT,
     daily_expenditure   BIGINT,
-    monthly_expenditure BIGINT,
+    monthly_expenditure BIGINT
 );
 
 CREATE TABLE IF NOT EXISTS activity_code (
     id BIGSERIAL PRIMARY KEY,
     code VARCHAR(7) NOT NULL,
     sector VARCHAR(127) NOT NULL,
-    branch VARCHAR(255) NOT NULL,
-)
+    branch VARCHAR(255) NOT NULL
+);
 
 CREATE TABLE IF NOT EXISTS company (
-    registered_id   BIGINT PRIMARY KEY,
-    name VARCHAR(127) NOT NULL,
-    tax_code        BIGINT NOT NULL,
-    activity_code_id BIGINT REFERENCES activity_code(id) ON UPDATE CASCADE ON DELETE RESTRICT,
-    address         VARCHAR(255) NOT NULL,
-    owner_id        BIGINT NOT NULL REFERENCES clients(id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    registered_id       BIGINT          PRIMARY KEY,
+    name                VARCHAR(127)    NOT NULL,
+    tax_code            BIGINT          NOT NULL,
+    activity_code_id    BIGINT          REFERENCES activity_code(id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    address             VARCHAR(255)    NOT NULL,
+    owner_id            BIGINT          NOT NULL REFERENCES clients(id) ON UPDATE CASCADE ON DELETE RESTRICT
+);
+
+CREATE TYPE card_type AS ENUM ('debit', 'credit');
+
+CREATE TABLE IF NOT EXISTS card (
+    number          VARCHAR(20)     PRIMARY KEY,
+    type            card_type       NOT NULL DEFAULT 'debit',
+    name            VARCHAR(127)    NOT NULL,
+    creation_date   DATE            NOT NULL DEFAULT CURRENT_DATE,
+    valid_until     DATE            NOT NULL,
+    account_number  VARCHAR(20)     REFERENCES account(number) ON UPDATE CASCADE ON DELETE RESTRICT,
+    cvv             VARCHAR(7)      NOT NULL,
+    card_limit      BIGINT,
+    active          BOOLEAN         NOT NULL DEFAULT FALSE
 );
