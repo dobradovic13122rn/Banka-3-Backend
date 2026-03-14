@@ -63,10 +63,7 @@ func (s *Server) Logout(c *gin.Context) {
 func (s *Server) Login(c *gin.Context) {
 	var req loginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "invalid request body",
-			"details": err.Error(),
-		})
+		writeBindError(c, err)
 		return
 	}
 
@@ -91,10 +88,7 @@ func (s *Server) Login(c *gin.Context) {
 func (s *Server) Refresh(c *gin.Context) {
 	var req refreshRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "invalid request body",
-			"details": err.Error(),
-		})
+		writeBindError(c, err)
 		return
 	}
 
@@ -118,10 +112,7 @@ func (s *Server) Refresh(c *gin.Context) {
 func (s *Server) CreateClientAccount(c *gin.Context) {
 	var req createClientAccountRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "invalid request body",
-			"details": err.Error(),
-		})
+		writeBindError(c, err)
 		return
 	}
 
@@ -158,10 +149,7 @@ func (s *Server) CreateClientAccount(c *gin.Context) {
 func (s *Server) CreateEmployeeAccount(c *gin.Context) {
 	var req createEmployeeAccountRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "invalid request body",
-			"details": err.Error(),
-		})
+		writeBindError(c, err)
 		return
 	}
 
@@ -229,10 +217,7 @@ func (s *Server) GetEmployeeByID(c *gin.Context) {
 func (s *Server) RequestPasswordReset(c *gin.Context) {
 	var req passwordResetRequestRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "invalid request body",
-			"details": err.Error(),
-		})
+		writeBindError(c, err)
 		return
 	}
 
@@ -255,10 +240,7 @@ func (s *Server) RequestPasswordReset(c *gin.Context) {
 func (s *Server) ConfirmPasswordReset(c *gin.Context) {
 	var req passwordResetConfirmationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "invalid request body",
-			"details": err.Error(),
-		})
+		writeBindError(c, err)
 		return
 	}
 

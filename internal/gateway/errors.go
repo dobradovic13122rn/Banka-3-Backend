@@ -8,6 +8,13 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+func writeBindError(c *gin.Context, err error) {
+	c.JSON(http.StatusBadRequest, gin.H{
+		"error":   "invalid request body",
+		"details": err.Error(),
+	})
+}
+
 func writeGRPCError(c *gin.Context, err error) {
 	st, ok := status.FromError(err)
 	if !ok {
