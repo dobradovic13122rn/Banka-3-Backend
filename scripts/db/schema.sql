@@ -157,3 +157,15 @@ CREATE TABLE IF NOT EXISTS payment (
     reason              VARCHAR(255)    NOT NULL,
     timestamp           TIMESTAMP       NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS transfer (
+    transaction_id      BIGSERIAL       PRIMARY KEY,
+    from_account        VARCHAR(20)     REFERENCES account(number),
+    to_account          VARCHAR(20)     REFERENCES account(number),
+    start_amount        BIGINT          NOT NULL,
+    end_amount          BIGINT          NOT NULL,
+    start_currency_id   BIGINT          REFERENCES currency(id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    exchange_rate       DECIMAL(10,2),
+    commission          BIGINT          NOT NULL,
+    timestamp           TIMESTAMP       NOT NULL DEFAULT NOW()
+);
