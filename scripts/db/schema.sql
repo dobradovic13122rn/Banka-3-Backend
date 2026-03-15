@@ -63,19 +63,22 @@ CREATE TABLE IF NOT EXISTS password_action_tokens (
 );
 
 CREATE TABLE IF NOT EXISTS currency (
-    label           VARCHAR(8)      PRIMARY KEY,
+    id              BIGSERIAL       PRIMARY KEY,
+    label           VARCHAR(8)      NOT NULL,
     name            VARCHAR(64)     NOT NULL,
     symbol          VARCHAR(8)      NOT NULL,
     countries       TEXT            NOT NULL,
     description     VARCHAR(1023)   NOT NULL,
-    active          BOOLEAN NOT     NULL DEFAULT TRUE
+    active          BOOLEAN NOT     NULL DEFAULT TRUE,
+    UNIQUE(label)
 );
 
 CREATE TYPE owner_type AS ENUM ('personal', 'business');
 CREATE TYPE account_type AS ENUM ('checking', 'foreign');
 
 CREATE TABLE IF NOT EXISTS account (
-    number              VARCHAR(20)     PRIMARY KEY,
+    id                  BIGSERIAL       PRIMARY KEY,
+    number              VARCHAR(20)     NOT NULL,
     name                VARCHAR(127)    NOT NULL,
     owner               BIGINT          NOT NULL REFERENCES clients(id) ON DELETE CASCADE, -- cascade delete??
     balance             BIGINT          NOT NULL DEFAULT 0,
@@ -90,30 +93,35 @@ CREATE TABLE IF NOT EXISTS account (
     daily_limit         BIGINT,
     monthly_limit       BIGINT,
     daily_expenditure   BIGINT,
-    monthly_expenditure BIGINT
+    monthly_expenditure BIGINT,
+    UNIQUE(number)
 );
 
 CREATE TABLE IF NOT EXISTS activity_code (
     id BIGSERIAL PRIMARY KEY,
     code VARCHAR(7) NOT NULL,
     sector VARCHAR(127) NOT NULL,
-    branch VARCHAR(255) NOT NULL
+    branch VARCHAR(255) NOT NULL,
+    UNIQUE(code)
 );
 
 CREATE TABLE IF NOT EXISTS company (
-    registered_id       BIGINT          PRIMARY KEY,
+    id                  BIGSERIAL        PRIMARY KEY,
+    registered_id       BIGINT          NOT NULL,
     name                VARCHAR(127)    NOT NULL,
     tax_code            BIGINT          NOT NULL,
     activity_code_id    BIGINT          REFERENCES activity_code(id) ON UPDATE CASCADE ON DELETE RESTRICT,
     address             VARCHAR(255)    NOT NULL,
-    owner_id            BIGINT          NOT NULL REFERENCES clients(id) ON UPDATE CASCADE ON DELETE RESTRICT
+    owner_id            BIGINT          NOT NULL REFERENCES clients(id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    UNIQUE(registered_id)
 );
 
 CREATE TYPE card_type AS ENUM ('debit', 'credit');
-CREATE TYPE card_status AS ENUM ('active', 'blocked', 'deactivated')
+CREATE TYPE card_status AS ENUM ('active', 'blocked', 'deactivated');
 
 CREATE TABLE IF NOT EXISTS card (
-    number          VARCHAR(20)     PRIMARY KEY,
+    id              BIGSERIAL        PRIMARY KEY,
+    number          VARCHAR(20)     NOT NULL,
     type            card_type       NOT NULL DEFAULT 'debit',
     name            VARCHAR(127)    NOT NULL,
     creation_date   DATE            NOT NULL DEFAULT CURRENT_DATE,
@@ -121,7 +129,8 @@ CREATE TABLE IF NOT EXISTS card (
     account_number  VARCHAR(20)     REFERENCES account(number) ON UPDATE CASCADE ON DELETE RESTRICT,
     cvv             VARCHAR(7)      NOT NULL,
     card_limit      BIGINT,
-    status          card_status     NOT NULL DEFAULT 'active'
+    status          card_status     NOT NULL DEFAULT 'active',
+    UNIQUE(number)
 );
 
 CREATE TABLE IF NOT EXISTS ovlasceno_lice (
