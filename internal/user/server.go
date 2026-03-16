@@ -183,8 +183,6 @@ func (s *Server) Login(ctx context.Context, req *userpb.LoginRequest) (*userpb.L
 		return nil, err
 	}
 
-	fmt.Printf("%x %x %x\n", hashedPassword, user.hashedPassword, user.salt)
-
 	if user != nil && bytes.Equal(hashedPassword, user.hashedPassword) {
 		accessToken, err := s.GenerateAccessToken(user.email)
 		if err != nil {
