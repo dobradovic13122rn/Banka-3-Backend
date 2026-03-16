@@ -53,7 +53,7 @@ func generateSalt() ([]byte, error) {
 	return salt, nil
 }
 
-func hashPassword(password string, salt []byte) []byte {
+func HashPassword(password string, salt []byte) []byte {
 	hashed := sha256.New()
 	hashed.Write(salt)
 	hashed.Write([]byte(password))
@@ -250,12 +250,12 @@ func (s *Server) Refresh(ctx context.Context, req *userpb.RefreshRequest) (*user
 
 func (s *Server) Login(ctx context.Context, req *userpb.LoginRequest) (*userpb.LoginResponse, error) {
 	user, err := s.GetUserByEmail(req.Email)
-	hashedPassword := hashPassword(req.Password, user.salt)
-	if err != nil {
-		return nil, err
+	if err != nil || user == nil {
+		return nil, status.Error(codes.Unauthenticated, "wrong creds")
 	}
+	hashedPassword := HashPassword(req.Password, user.salt)
 
-	if user != nil && bytes.Equal(hashedPassword, user.hashedPassword) {
+	if bytes.Equal(hashedPassword, user.hashedPassword) {
 		accessToken, err := s.GenerateAccessToken(user.email)
 		if err != nil {
 			return nil, err
@@ -487,7 +487,7 @@ func (s *Server) CreateClientAccount(ctx context.Context, req *userpb.CreateClie
 	client := Clients{First_name: req.FirstName,
 		Last_name: req.LastName, Date_of_birth: time.Unix(req.DateOfBirth, 0),
 		Gender: req.Gender, Email: req.Email, Phone_number: req.PhoneNumber,
-		Address: req.Address, Password: hashPassword(req.Password, salt),
+		Address: req.Address, Password: HashPassword(req.Password, salt),
 		Salt_password: salt}
 
 	err := create_user_from_model(client, s)
@@ -524,7 +524,7 @@ func (s *Server) CreateEmployeeAccount(ctx context.Context, req *userpb.CreateEm
 		Gender: req.Gender, Email: req.Email, Phone_number: req.PhoneNumber,
 		Address: req.Address, Username: req.Username, Position: req.Position,
 		Department: req.Department, Salt_password: salt,
-		Password: hashPassword(req.Password, salt)}
+		Password: HashPassword(req.Password, salt)}
 
 	err := create_user_from_model(employee, s)
 
