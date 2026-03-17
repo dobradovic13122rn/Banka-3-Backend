@@ -92,7 +92,7 @@ func (s *Server) GetEmployeeById(ctx context.Context, req *userpb.GetEmployeeByI
 	user, err := s.GetUserByID(req.Id)
 	if err != nil {
 		log.Printf("Error in employee retrieval%s", err.Error())
-		return nil, status.Error(codes.Internal, "Employee creation failed")
+		return nil, status.Error(codes.Internal, "Employee retrieval failed")
 	}
 
 	resp := map_to_protobuff_resp(*user)
@@ -493,7 +493,7 @@ func (s *Server) CreateClientAccount(ctx context.Context, req *userpb.CreateClie
 	err := create_user_from_model(client, s)
 	if err != nil {
 		log.Printf("Error in user creation%s", err.Error())
-		return nil, status.Error(codes.Internal, "Employee creation failed")
+		return nil, status.Error(codes.Internal, "Client creation failed")
 	}
 	return &userpb.CreateClientResponse{Valid: true}, nil
 

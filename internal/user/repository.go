@@ -6,13 +6,12 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"time"
-
 	"log"
-
-	"github.com/golang-jwt/jwt/v5"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type User struct {
@@ -203,10 +202,14 @@ func create_user_from_model[T Clients | Employees](user T, s *Server) error {
 }
 
 func (s *Server) GetUserByID(id int64) (*Employee_by_Id_response, error) {
-	query := `select e.id, first_name, last_name, date_of_birth, gender, email, phone_number, address, username, position, department ,active, p.id, p.name   from employees e join employee_permissions ep on e.id = ep.employee_id join permissions p on ep.permission_id = p.id where e.id = 2`
+	query := `select e.id, first_name, last_name, date_of_birth, gender, email, phone_number, address, username, position, department, active, p.id, p.name
+	from employees e
+	join employee_permissions ep on e.id = ep.employee_id
+	join permissions p on ep.permission_id = p.id
+	where e.id = $1`
 
 	var user Employee_by_Id_response
-	err := s.database.QueryRow(query).Scan(
+	err := s.database.QueryRow(query, id).Scan(
 		&user.Id, &user.First_name, &user.Last_name, &user.Date_of_birth,
 		&user.Gender, &user.Email, &user.Phone_number, &user.Address,
 		&user.Username, &user.Position, &user.Department, &user.Active,
@@ -282,7 +285,7 @@ func (s *Server) GetAllEmployees(email string, name string, last_name string, po
 func (s *Server) UpdateEmployee_(emp *Employees, perms []Permissions) error {
 	updates := map[string]any{
 		"id":           emp.Id,
-		"last_name":    emp.First_name,
+		"last_name":    emp.Last_name,
 		"gender":       emp.Gender,
 		"phone_number": emp.Phone_number,
 		"address":      emp.Address,
