@@ -202,18 +202,21 @@ func create_user_from_model[T Clients | Employees](user T, s *Server) error {
 }
 
 func (s *Server) GetUserByID(id int64) (*Employee_by_Id_response, error) {
-	query := `select e.id, first_name, last_name, date_of_birth, gender, email, phone_number, address, username, position, department, active, p.id, p.name
+	query := `select distinct on (e.id) e.id, first_name, last_name, date_of_birth, gender, email, phone_number, address, username, position, department, active, p.id, p.name
 	from employees e
-	join employee_permissions ep on e.id = ep.employee_id
-	join permissions p on ep.permission_id = p.id
+	left join employee_permissions ep on e.id = ep.employee_id
+	left join permissions p on ep.permission_id = p.id
 	where e.id = $1`
 
 	var user Employee_by_Id_response
+	var permissionID sql.NullInt64
+	var permissionName sql.NullString
+
 	err := s.database.QueryRow(query, id).Scan(
 		&user.Id, &user.First_name, &user.Last_name, &user.Date_of_birth,
 		&user.Gender, &user.Email, &user.Phone_number, &user.Address,
 		&user.Username, &user.Position, &user.Department, &user.Active,
-		&user.Permission_id, &user.Permission_name,
+		&permissionID, &permissionName,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -222,14 +225,21 @@ func (s *Server) GetUserByID(id int64) (*Employee_by_Id_response, error) {
 		return nil, fmt.Errorf("querying user: %w", err)
 	}
 
+	if permissionID.Valid {
+		user.Permission_id = permissionID.Int64
+	}
+	if permissionName.Valid {
+		user.Permission_name = permissionName.String
+	}
+
 	return &user, nil
 }
 
 func (s *Server) GetAllEmployees(email string, name string, last_name string, position string) (*[]Get_employees, error) {
-	query := `SELECT e.id, e.first_name, e.last_name, e.email, e.position, e.phone_number, e.active, p.id, p.name
-	FROM employees e 
-	JOIN employee_permissions ep ON e.id = ep.employee_id 
-	JOIN permissions p ON ep.permission_id = p.id`
+	query := `SELECT DISTINCT ON (e.id) e.id, first_name, last_name, email, position, phone_number, active, p.id, p.name
+		FROM employees e
+		LEFT JOIN employee_permissions ep ON e.id = ep.employee_id
+		LEFT JOIN permissions p ON ep.permission_id = p.id`
 
 	var conditions []string
 	// Query is variadic, and interface{}
@@ -263,18 +273,27 @@ func (s *Server) GetAllEmployees(email string, name string, last_name string, po
 	if err != nil {
 		return nil, fmt.Errorf("whatever the fuck went wrong now: %w", err)
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var emp Get_employees
-		if err := rows.Scan(
-			&emp.Id, &emp.First_name, &emp.Last_name, &emp.Email,
-			&emp.Position, &emp.Phone_number, &emp.Active,
-			&emp.Permission_id, &emp.Permission_name,
-		); err != nil {
-			return nil, fmt.Errorf("failed reading in the values: %w", err)
+		var permissionID sql.NullInt64
+		var permissionName sql.NullString
+
+		if err := rows.Scan(&emp.Id, &emp.First_name, &emp.Last_name, &emp.Email, &emp.Position, &emp.Phone_number, &emp.Active, &permissionID, &permissionName); err != nil {
+			return nil, fmt.Errorf("failed reading employee row: %w", err)
 		}
+
+		if permissionID.Valid {
+			emp.Permission_id = permissionID.Int64
+		}
+		if permissionName.Valid {
+			emp.Permission_name = permissionName.String
+		}
+
 		employees = append(employees, emp)
 	}
+
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("error: %w", err)
 	}

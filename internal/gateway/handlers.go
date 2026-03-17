@@ -206,6 +206,11 @@ func (s *Server) GetEmployeeByID(c *gin.Context) {
 		return
 	}
 
+	permissions := []string{}
+	if resp.Perms.Permision != "" {
+		permissions = append(permissions, resp.Perms.Permision)
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"id":            resp.Id,
 		"first_name":    resp.FirstName,
@@ -219,7 +224,7 @@ func (s *Server) GetEmployeeByID(c *gin.Context) {
 		"position":      resp.Position,
 		"department":    resp.Department,
 		"active":        resp.Active,
-		"permissions":   []string{resp.Perms.Permision},
+		"permissions":   permissions,
 	})
 }
 
