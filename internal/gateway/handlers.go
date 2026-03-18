@@ -48,6 +48,14 @@ func SetupApi(router *gin.Engine, server *Server) {
 		companies.GET("/:id", server.GetCompanyByID)
 		companies.PUT("/:id", server.UpdateCompany)
 	}
+
+	accounts := api.Group("/accounts")
+	{
+		accounts.GET("", server.GetAccounts)
+		accounts.GET("/:accountNumber", server.GetAccountByNumber)
+		accounts.PATCH("/:accountNumber/name", server.UpdateAccountName)
+		accounts.PATCH("/:accountNumber/limit", server.UpdateAccountLimits)
+	}
 }
 
 func (s *Server) Healthz(c *gin.Context) {
@@ -523,4 +531,20 @@ func (s *Server) ConfirmPasswordReset(c *gin.Context) {
 	} else {
 		c.Status(http.StatusUnprocessableEntity)
 	}
+}
+
+func (s *Server) GetAccounts(c *gin.Context) {
+
+}
+
+func (s *Server) GetAccountByNumber(c *gin.Context) {
+
+}
+
+func (s *Server) UpdateAccountName(c *gin.Context) {
+
+}
+
+func (s *Server) UpdateAccountLimits(c *gin.Context) {
+
 }

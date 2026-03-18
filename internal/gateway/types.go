@@ -102,3 +102,22 @@ type updateCompanyRequest struct {
 	Address        string `json:"address" binding:"required"`
 	OwnerID        int64  `json:"owner_id" binding:"required"`
 }
+
+type getAccountsQuery struct {
+	FirstName     string `form:"first_name"`
+	LastName      string `form:"last_name"`
+	AccountNumber string `form:"account_number"`
+}
+
+type accountNumberURI struct {
+	AccountNumber string `uri:"accountNumber" binding:"required"`
+}
+
+type updateAccountNameRequest struct {
+	Name string `json:"name" binding:"required"`
+}
+
+type updateAccountLimitsRequest struct {
+	DailyLimit   *float64 `json:"daily_limit"`
+	MonthlyLimit *float64 `json:"monthly_limit"`
+}
