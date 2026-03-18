@@ -78,7 +78,7 @@ func (emp Employee) toProtobuf() *userpb.GetEmployeeResponse {
 		Id:          int64(emp.Id),
 		FirstName:   emp.First_name,
 		LastName:    emp.Last_name,
-		BirthDate:   emp.Date_of_birth.Format(time.DateOnly),
+		BirthDate:   emp.Date_of_birth.Unix(),
 		Gender:      emp.Gender,
 		Email:       emp.Email,
 		PhoneNumber: emp.Phone_number,

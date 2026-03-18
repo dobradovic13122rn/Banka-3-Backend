@@ -1198,7 +1198,7 @@ type GetEmployeeResponse struct {
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	FirstName     string                 `protobuf:"bytes,2,opt,name=first_name,json=firstName,proto3" json:"first_name,omitempty"`
 	LastName      string                 `protobuf:"bytes,3,opt,name=last_name,json=lastName,proto3" json:"last_name,omitempty"`
-	BirthDate     string                 `protobuf:"bytes,4,opt,name=birth_date,json=birthDate,proto3" json:"birth_date,omitempty"`
+	BirthDate     int64                  `protobuf:"varint,4,opt,name=birth_date,json=birthDate,proto3" json:"birth_date,omitempty"`
 	Gender        string                 `protobuf:"bytes,5,opt,name=gender,proto3" json:"gender,omitempty"`
 	Email         string                 `protobuf:"bytes,6,opt,name=email,proto3" json:"email,omitempty"`
 	PhoneNumber   string                 `protobuf:"bytes,7,opt,name=phone_number,json=phoneNumber,proto3" json:"phone_number,omitempty"`
@@ -1263,11 +1263,11 @@ func (x *GetEmployeeResponse) GetLastName() string {
 	return ""
 }
 
-func (x *GetEmployeeResponse) GetBirthDate() string {
+func (x *GetEmployeeResponse) GetBirthDate() int64 {
 	if x != nil {
 		return x.BirthDate
 	}
-	return ""
+	return 0
 }
 
 func (x *GetEmployeeResponse) GetGender() string {
@@ -1689,7 +1689,7 @@ const file_user_user_proto_rawDesc = "" +
 	"first_name\x18\x02 \x01(\tR\tfirstName\x12\x1b\n" +
 	"\tlast_name\x18\x03 \x01(\tR\blastName\x12\x1d\n" +
 	"\n" +
-	"birth_date\x18\x04 \x01(\tR\tbirthDate\x12\x16\n" +
+	"birth_date\x18\x04 \x01(\x03R\tbirthDate\x12\x16\n" +
 	"\x06gender\x18\x05 \x01(\tR\x06gender\x12\x14\n" +
 	"\x05email\x18\x06 \x01(\tR\x05email\x12!\n" +
 	"\fphone_number\x18\a \x01(\tR\vphoneNumber\x12\x18\n" +

@@ -205,7 +205,21 @@ func (s *Server) GetEmployeeByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, resp)
+	c.JSON(http.StatusOK, gin.H{
+		"id":            resp.Id,
+		"first_name":    resp.FirstName,
+		"last_name":     resp.LastName,
+		"birth_date":    time.Unix(resp.BirthDate, 0).Format(time.DateOnly),
+		"gender":        resp.Gender,
+		"email":         resp.Email,
+		"phone_numbere": resp.PhoneNumber,
+		"address":       resp.PhoneNumber,
+		"username":      resp.Username,
+		"position":      resp.Position,
+		"department":    resp.Department,
+		"active":        resp.Active,
+		"permissions":   resp.Permissions,
+	})
 }
 
 func (s *Server) GetAllEmployees(c *gin.Context) {
@@ -214,7 +228,6 @@ func (s *Server) GetAllEmployees(c *gin.Context) {
 		c.Status(http.StatusBadRequest)
 		return
 	}
-	println("EMAIL!!!:  " + uri.Email)
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
 	defer cancel()
 
