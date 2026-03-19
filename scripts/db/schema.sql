@@ -210,20 +210,18 @@ CREATE TABLE IF NOT EXISTS loan_installment (
     status              installment_status  NOT NULL DEFAULT 'due'
 );
 
-CREATE TYPE employment_status AS ENUM ('full_time', 'temporary', 'unemployed');
+CREATE TYPE employment_status AS ENUM ('full_time', 'temporary', 'unemployed'); -- unused due to this change, remove later?
+CREATE TYPE loan_request_status AS ENUM ('pending', 'approved', 'rejected');
 
 CREATE TABLE IF NOT EXISTS loan_request (
-    id                          BIGSERIAL           PRIMARY KEY,
-    type                        loan_type           NOT NULL,
-    interest_rate_type          interest_rate_type  NOT NULL,
-    purpose                     VARCHAR(1023)       NOT NULL,
-    monthly_installment         DECIMAL(20, 2)      NOT NULL,
-    currency_id                 BIGINT              REFERENCES currencies(id) ON UPDATE CASCADE ON DELETE RESTRICT,
-    amount                      DECIMAL(20, 2)      NOT NULL,
-    employment_status           employment_status   NOT NULL,
-    current_employment_time     BIGINT              NOT NULL,
-    phone_contact               VARCHAR(20)         NOT NULL,
-    account_id                  BIGINT              REFERENCES accounts(id) ON UPDATE CASCADE ON DELETE RESTRICT
+    id                  BIGSERIAL            PRIMARY KEY,
+    type                loan_type            NOT NULL,
+    currency_id         BIGINT               REFERENCES currencies(id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    amount              DECIMAL(20, 2)       NOT NULL,
+    repayment_period    BIGINT               NOT NULL,
+    account_id          BIGINT               REFERENCES accounts(id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    status              loan_request_status  NOT NULL DEFAULT 'pending',
+    submission_date     TIMESTAMP            NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS verification_codes (
