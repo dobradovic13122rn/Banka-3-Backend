@@ -77,7 +77,7 @@ type updateClientRequest struct {
 type createEmployeeAccountRequest struct {
 	FirstName   string `json:"first_name" binding:"required"`
 	LastName    string `json:"last_name" binding:"required"`
-	BirthDate   int64  `json:"date_of_birth"`
+	BirthDate   int64  `json:"birth_date"`
 	Gender      string `json:"gender"`
 	Email       string `json:"email" binding:"required"`
 	PhoneNumber string `json:"phone_number"`

@@ -132,7 +132,7 @@ func (s *Server) GetEmployees(ctx context.Context, req *userpb.GetEmployeesReque
 	return &userpb.GetEmployeesResponse{Employees: employee_responses}, nil
 }
 
-func (s *Server) UpdateEmployee(ctx context.Context, req *userpb.UpdateEmployeeRequest) (*userpb.UpdateEmployeeResponse, error) {
+func (s *Server) UpdateEmployee(ctx context.Context, req *userpb.UpdateEmployeeRequest) (*userpb.GetEmployeeResponse, error) {
 	println("here")
 
 	var permissions []Permission
@@ -158,7 +158,7 @@ func (s *Server) UpdateEmployee(ctx context.Context, req *userpb.UpdateEmployeeR
 
 	println("here2")
 
-	err := s.UpdateEmployee_(&emp)
+	updated, err := s.UpdateEmployee_(&emp)
 	if err != nil {
 		if errors.Is(err, ErrEmployeeNotFound) {
 			return nil, status.Error(codes.NotFound, "Employee not found")
@@ -168,7 +168,7 @@ func (s *Server) UpdateEmployee(ctx context.Context, req *userpb.UpdateEmployeeR
 		}
 		return nil, status.Error(codes.Internal, "Messed something up in UpdateEmployee_ in repo")
 	}
-	return &userpb.UpdateEmployeeResponse{Valid: true, Response: "You made it"}, nil
+	return updated.toProtobuf(), nil
 
 }
 
@@ -744,19 +744,14 @@ func (s *Server) CreateClientAccount(ctx context.Context, req *userpb.CreateClie
 
 }
 
-func (s *Server) CreateEmployeeAccount(ctx context.Context, req *userpb.CreateEmployeeRequest) (*userpb.CreateEmployeeResponse, error) {
+func (s *Server) CreateEmployeeAccount(ctx context.Context, req *userpb.CreateEmployeeRequest) (*userpb.GetEmployeeResponse, error) {
 	is_null := func(str string) bool {
 		return strings.TrimSpace(str) == ""
 	}
-	vals := []string{req.FirstName, req.LastName, req.Gender, req.Email, req.PhoneNumber,
-		req.Address, req.Username}
+	vals := []string{req.FirstName, req.LastName, req.Email,
+		req.Username}
 	if slices.ContainsFunc(vals, is_null) {
 		return nil, status.Error(codes.InvalidArgument, "One of the required cols is null")
-	}
-
-	if req.Gender != "M" && req.Gender != "F" {
-		log.Print("create employee gender must be M or F")
-		return nil, errors.New("gender must be M or F")
 	}
 
 	salt, salt_err := generateSalt()
@@ -777,6 +772,6 @@ func (s *Server) CreateEmployeeAccount(ctx context.Context, req *userpb.CreateEm
 		log.Printf("Error in user creation%s", err.Error())
 		return nil, status.Error(codes.Internal, "Employee creation failed")
 	}
-	return &userpb.CreateEmployeeResponse{Valid: true}, nil
+	return employee.toProtobuf(), nil
 
 }

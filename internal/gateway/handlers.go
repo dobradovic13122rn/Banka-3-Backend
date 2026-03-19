@@ -226,10 +226,7 @@ func (s *Server) UpdateClient(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"valid":    resp.Valid,
-		"response": resp.Response,
-	})
+	c.JSON(http.StatusOK, resp)
 }
 
 func (s *Server) CreateEmployeeAccount(c *gin.Context) {
@@ -260,16 +257,7 @@ func (s *Server) CreateEmployeeAccount(c *gin.Context) {
 		return
 	}
 
-	if resp.Valid {
-		c.JSON(http.StatusCreated, gin.H{
-			"valid": true,
-		})
-		return
-	}
-
-	c.JSON(http.StatusUnprocessableEntity, gin.H{
-		"valid": false,
-	})
+	c.JSON(http.StatusCreated, resp)
 }
 
 func companyResponse(company *userpb.Company) gin.H {

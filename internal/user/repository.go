@@ -644,7 +644,7 @@ func (s *Server) GetAllEmployees(email string, name string, last_name string, po
 	return &employees, nil
 }
 
-func (s *Server) UpdateEmployee_(emp *Employee) error {
+func (s *Server) UpdateEmployee_(emp *Employee) (*Employee, error) {
 
 	updates := map[string]any{
 		"first_name":   emp.First_name,
@@ -663,7 +663,7 @@ func (s *Server) UpdateEmployee_(emp *Employee) error {
 		Where("id = ?", emp.Id).
 		Updates(updates).Error; err != nil {
 		tx.Rollback()
-		return ErrEmployeeNotFound
+		return nil, ErrEmployeeNotFound
 	}
 
 	var perms []Permission
@@ -677,15 +677,27 @@ func (s *Server) UpdateEmployee_(emp *Employee) error {
 		Where("name IN ?", names).
 		Find(&perms).Error; err != nil {
 		tx.Rollback()
-		return ErrUnknownPermission
+		return nil, ErrUnknownPermission
 	}
 
 	if err := tx.Model(emp).
 		Association("Permissions").
 		Replace(&perms); err != nil {
 		tx.Rollback()
-		return ErrEmployeeNotFound
+		return nil, ErrEmployeeNotFound
 	}
 
-	return tx.Commit().Error
+	var updated Employee
+	if err := tx.
+		Preload("Permissions").
+		First(&updated, emp.Id).Error; err != nil {
+		tx.Rollback()
+		return nil, ErrEmployeeNotFound
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return nil, err
+	}
+
+	return &updated, nil
 }
