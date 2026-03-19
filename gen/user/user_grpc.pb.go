@@ -51,7 +51,7 @@ type UserServiceClient interface {
 	GetEmployeeById(ctx context.Context, in *GetEmployeeByIdRequest, opts ...grpc.CallOption) (*GetEmployeeResponse, error)
 	GetEmployeeByEmail(ctx context.Context, in *GetEmployeeByEmailRequest, opts ...grpc.CallOption) (*GetEmployeeResponse, error)
 	GetEmployees(ctx context.Context, in *GetEmployeesRequest, opts ...grpc.CallOption) (*GetEmployeesResponse, error)
-	UpdateEmployee(ctx context.Context, in *UpdateEmployeeRequest, opts ...grpc.CallOption) (*UpdateEmployeeResponse, error)
+	UpdateEmployee(ctx context.Context, in *UpdateEmployeeRequest, opts ...grpc.CallOption) (*GetEmployeeResponse, error)
 	CreateCompany(ctx context.Context, in *CreateCompanyRequest, opts ...grpc.CallOption) (*CreateCompanyResponse, error)
 	GetCompanyById(ctx context.Context, in *GetCompanyByIdRequest, opts ...grpc.CallOption) (*GetCompanyByIdResponse, error)
 	GetCompanies(ctx context.Context, in *GetCompaniesRequest, opts ...grpc.CallOption) (*GetCompaniesResponse, error)
@@ -67,7 +67,7 @@ type UserServiceClient interface {
 	CreateClientAccount(ctx context.Context, in *CreateClientRequest, opts ...grpc.CallOption) (*CreateClientResponse, error)
 	GetClients(ctx context.Context, in *GetClientsRequest, opts ...grpc.CallOption) (*GetClientsResponse, error)
 	UpdateClient(ctx context.Context, in *UpdateClientRequest, opts ...grpc.CallOption) (*UpdateClientResponse, error)
-	CreateEmployeeAccount(ctx context.Context, in *CreateEmployeeRequest, opts ...grpc.CallOption) (*CreateEmployeeResponse, error)
+	CreateEmployeeAccount(ctx context.Context, in *CreateEmployeeRequest, opts ...grpc.CallOption) (*GetEmployeeResponse, error)
 	GetLoans(ctx context.Context, in *GetLoansRequest, opts ...grpc.CallOption) (*GetLoansResponse, error)
 	GetLoanByNumber(ctx context.Context, in *GetLoanByNumberRequest, opts ...grpc.CallOption) (*Loan, error)
 	CreateLoanRequest(ctx context.Context, in *CreateLoanRequestRequest, opts ...grpc.CallOption) (*CreateLoanRequestResponse, error)
@@ -111,9 +111,9 @@ func (c *userServiceClient) GetEmployees(ctx context.Context, in *GetEmployeesRe
 	return out, nil
 }
 
-func (c *userServiceClient) UpdateEmployee(ctx context.Context, in *UpdateEmployeeRequest, opts ...grpc.CallOption) (*UpdateEmployeeResponse, error) {
+func (c *userServiceClient) UpdateEmployee(ctx context.Context, in *UpdateEmployeeRequest, opts ...grpc.CallOption) (*GetEmployeeResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UpdateEmployeeResponse)
+	out := new(GetEmployeeResponse)
 	err := c.cc.Invoke(ctx, UserService_UpdateEmployee_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -271,9 +271,9 @@ func (c *userServiceClient) UpdateClient(ctx context.Context, in *UpdateClientRe
 	return out, nil
 }
 
-func (c *userServiceClient) CreateEmployeeAccount(ctx context.Context, in *CreateEmployeeRequest, opts ...grpc.CallOption) (*CreateEmployeeResponse, error) {
+func (c *userServiceClient) CreateEmployeeAccount(ctx context.Context, in *CreateEmployeeRequest, opts ...grpc.CallOption) (*GetEmployeeResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CreateEmployeeResponse)
+	out := new(GetEmployeeResponse)
 	err := c.cc.Invoke(ctx, UserService_CreateEmployeeAccount_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -318,7 +318,7 @@ type UserServiceServer interface {
 	GetEmployeeById(context.Context, *GetEmployeeByIdRequest) (*GetEmployeeResponse, error)
 	GetEmployeeByEmail(context.Context, *GetEmployeeByEmailRequest) (*GetEmployeeResponse, error)
 	GetEmployees(context.Context, *GetEmployeesRequest) (*GetEmployeesResponse, error)
-	UpdateEmployee(context.Context, *UpdateEmployeeRequest) (*UpdateEmployeeResponse, error)
+	UpdateEmployee(context.Context, *UpdateEmployeeRequest) (*GetEmployeeResponse, error)
 	CreateCompany(context.Context, *CreateCompanyRequest) (*CreateCompanyResponse, error)
 	GetCompanyById(context.Context, *GetCompanyByIdRequest) (*GetCompanyByIdResponse, error)
 	GetCompanies(context.Context, *GetCompaniesRequest) (*GetCompaniesResponse, error)
@@ -334,7 +334,7 @@ type UserServiceServer interface {
 	CreateClientAccount(context.Context, *CreateClientRequest) (*CreateClientResponse, error)
 	GetClients(context.Context, *GetClientsRequest) (*GetClientsResponse, error)
 	UpdateClient(context.Context, *UpdateClientRequest) (*UpdateClientResponse, error)
-	CreateEmployeeAccount(context.Context, *CreateEmployeeRequest) (*CreateEmployeeResponse, error)
+	CreateEmployeeAccount(context.Context, *CreateEmployeeRequest) (*GetEmployeeResponse, error)
 	GetLoans(context.Context, *GetLoansRequest) (*GetLoansResponse, error)
 	GetLoanByNumber(context.Context, *GetLoanByNumberRequest) (*Loan, error)
 	CreateLoanRequest(context.Context, *CreateLoanRequestRequest) (*CreateLoanRequestResponse, error)
@@ -357,7 +357,7 @@ func (UnimplementedUserServiceServer) GetEmployeeByEmail(context.Context, *GetEm
 func (UnimplementedUserServiceServer) GetEmployees(context.Context, *GetEmployeesRequest) (*GetEmployeesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetEmployees not implemented")
 }
-func (UnimplementedUserServiceServer) UpdateEmployee(context.Context, *UpdateEmployeeRequest) (*UpdateEmployeeResponse, error) {
+func (UnimplementedUserServiceServer) UpdateEmployee(context.Context, *UpdateEmployeeRequest) (*GetEmployeeResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateEmployee not implemented")
 }
 func (UnimplementedUserServiceServer) CreateCompany(context.Context, *CreateCompanyRequest) (*CreateCompanyResponse, error) {
@@ -405,7 +405,7 @@ func (UnimplementedUserServiceServer) GetClients(context.Context, *GetClientsReq
 func (UnimplementedUserServiceServer) UpdateClient(context.Context, *UpdateClientRequest) (*UpdateClientResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateClient not implemented")
 }
-func (UnimplementedUserServiceServer) CreateEmployeeAccount(context.Context, *CreateEmployeeRequest) (*CreateEmployeeResponse, error) {
+func (UnimplementedUserServiceServer) CreateEmployeeAccount(context.Context, *CreateEmployeeRequest) (*GetEmployeeResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateEmployeeAccount not implemented")
 }
 func (UnimplementedUserServiceServer) GetLoans(context.Context, *GetLoansRequest) (*GetLoansResponse, error) {
