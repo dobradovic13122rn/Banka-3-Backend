@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS accounts (
     name                VARCHAR(127)    NOT NULL,
     owner               BIGINT          NOT NULL REFERENCES clients(id) ON DELETE CASCADE, -- cascade delete??
     balance             BIGINT          NOT NULL DEFAULT 0,
-    created_by          BIGINT          NOT NULL REFERENCES employees(id) ON DELETE SET NULL,
+    created_by          BIGINT          REFERENCES employees(id) ON DELETE SET NULL,
     created_at          DATE            NOT NULL DEFAULT CURRENT_DATE,
     valid_until         DATE            NOT NULL,
     currency            VARCHAR(8)      NOT NULL REFERENCES currencies(label) ON UPDATE CASCADE ON DELETE RESTRICT,
