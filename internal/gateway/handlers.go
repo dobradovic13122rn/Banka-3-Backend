@@ -56,7 +56,7 @@ func SetupApi(router *gin.Engine, server *Server) {
 		cards.GET("", AuthenticatedMiddleware(server.UserClient), server.GetCards)
 		cards.POST("/request", AuthenticatedMiddleware(server.UserClient), server.RequestCard)
 		cards.GET("/confirm", server.ConfirmCard)
-		cards.PATCH("/{id}/block", AuthenticatedMiddleware(server.UserClient), server.BlockCard)
+		cards.PATCH("/:id/block", AuthenticatedMiddleware(server.UserClient), server.BlockCard)
 	}
 }
 
