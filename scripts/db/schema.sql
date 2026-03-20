@@ -142,7 +142,7 @@ CREATE TABLE IF NOT EXISTS card_requests (
     brand           card_brand      NOT NULL,
     token           VARCHAR(255)    NOT NULL,
     expiration_date DATE            NOT NULL,
-    complete        BOOLEAN         NOT NULL DEFAULT FALSE
+    complete        BOOLEAN         NOT NULL DEFAULT FALSE,
     email           VARCHAR(255)    NOT NULL
 );
 

@@ -62,8 +62,8 @@ Insert into companies(registered_id, name, tax_code, activity_code_id, address, 
 31415926, 'Marvin the android corp', 42, 1, 'At the restaurant at the end of the universe', 1
 );
 
-Insert into cards (number, name, valid_until, account_number, cvv, card_limit) values(
-'271828', 'Ford Perfect card', '2030-12-31', '14159265358979323846', '357', 10000
+Insert into cards (number, brand, valid_until, account_number, cvv, card_limit) values(
+'271828', 'visa', '2030-12-31', '14159265358979323846', '357', 10000
 );
 
 Insert into authorized_party (name, last_name, date_of_birth, gender, email, phone_number, address) values(
