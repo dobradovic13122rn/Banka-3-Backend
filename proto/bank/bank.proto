@@ -21,6 +21,7 @@ message CreateCardRequest {
   string account_number = 1;
   string card_type = 2;
   string card_brand = 3;
+  string email = 4;
 }
 
 message RequestCardRequest {

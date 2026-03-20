@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -187,7 +186,34 @@ func mapCardToProto(card *Card) *bankpb.CardResponse {
 	}
 }
 
+func (s *Server) checkCardLimit(userEmail string, accountNumber string) error {
+	isAuth, _ := s.IsAuthorizedParty(userEmail, accountNumber)
+	limit := 2
+	if isAuth {
+		limit = 1
+	}
+
+	count, err := s.CountActiveCardsByAccountNumber(accountNumber)
+	if err != nil {
+		return status.Error(codes.Internal, "failed to check limits")
+	}
+
+	if count >= limit {
+		return status.Error(codes.FailedPrecondition, "card limit reached for this user type")
+	}
+	return nil
+}
+
 func (s *Server) CreateCard(_ context.Context, req *bankpb.CreateCardRequest) (*bankpb.CardResponse, error) {
+	_, err := s.GetAccountByNumberRecord(req.AccountNumber)
+	if err != nil {
+		return nil, status.Error(codes.NotFound, "account not found")
+	}
+
+	if err := s.checkCardLimit(req.Email, req.AccountNumber); err != nil {
+		return nil, err
+	}
+
 	brand := card_brand(strings.ToLower(req.CardBrand))
 	number, err := GenerateCardNumber(brand, req.AccountNumber)
 	if err != nil {
@@ -211,51 +237,27 @@ func (s *Server) CreateCard(_ context.Context, req *bankpb.CreateCardRequest) (*
 }
 
 func (s *Server) RequestCard(ctx context.Context, req *bankpb.RequestCardRequest) (*bankpb.RequestCardResponse, error) {
-	log.Printf("[RequestCard] Received request for account: %s", req.AccountNumber)
-
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		log.Println("[RequestCard] Error: metadata missing")
 		return nil, status.Error(codes.Unauthenticated, "metadata missing")
 	}
 
 	emails := md.Get("user-email")
 	if len(emails) == 0 {
-		log.Println("[RequestCard] Error: user-email missing in metadata")
 		return nil, status.Error(codes.Unauthenticated, "email missing in metadata")
 	}
 	userEmail := emails[0]
-	log.Printf("[RequestCard] User identified: %s", userEmail)
 
-	// Provera naloga
 	acc, err := s.GetAccountByNumberRecord(req.AccountNumber)
 	if err != nil {
-		log.Printf("[RequestCard] Error: Account %s not found in database: %v", req.AccountNumber, err)
 		return nil, status.Error(codes.NotFound, "account not found")
 	}
 
-	// Provera autorizacije i limita
-	isAuth, _ := s.IsAuthorizedParty(userEmail, req.AccountNumber)
-	limit := 2
-	if isAuth {
-		limit = 1
-		log.Printf("[RequestCard] User %s is authorized party. Limit set to %d", userEmail, limit)
-	} else {
-		log.Printf("[RequestCard] User %s is account owner. Limit set to %d", userEmail, limit)
-	}
-
-	count, err := s.CountActiveCardsByAccountNumber(req.AccountNumber)
+	err = s.checkCardLimit(emails[0], req.AccountNumber)
 	if err != nil {
-		log.Printf("[RequestCard] Error: Failed to count active cards for %s: %v", req.AccountNumber, err)
-		return nil, status.Error(codes.Internal, "failed to check limits")
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	if count >= limit {
-		log.Printf("[RequestCard] Rejected: Account %s has %d active cards (Limit: %d)", req.AccountNumber, count, limit)
-		return nil, status.Error(codes.FailedPrecondition, "card limit reached for this user type")
-	}
-
-	// Kreiranje zahteva
 	token := fmt.Sprintf("tkn-%d-%d", time.Now().UnixNano(), acc.Id)
 	cardReq := CardRequest{
 		Account_number: req.AccountNumber,
@@ -269,20 +271,16 @@ func (s *Server) RequestCard(ctx context.Context, req *bankpb.RequestCardRequest
 
 	_, err = s.CreateCardRequestRecord(cardReq)
 	if err != nil {
-		log.Printf("[RequestCard] Error: Database failure creating request record: %v", err)
 		return nil, status.Error(codes.Internal, "failed to create request")
 	}
-	log.Printf("[RequestCard] Success: Card request created for %s. Token: %s", userEmail, token)
 
 	baseUrl := "http://localhost:8080/api/cards/confirm/?token="
 	url := baseUrl + token
 
 	err = s.sendCardConfirmationEmail(ctx, userEmail, url)
 	if err != nil {
-		log.Printf("[RequestCard] Warning: Failed to send confirmation email to %s: %v", userEmail, err)
 		return nil, err
 	}
-	log.Printf("[RequestCard] Confirmation email triggered for %s", userEmail)
 
 	return &bankpb.RequestCardResponse{Accepted: true}, nil
 }

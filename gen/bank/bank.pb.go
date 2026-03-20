@@ -26,6 +26,7 @@ type CreateCardRequest struct {
 	AccountNumber string                 `protobuf:"bytes,1,opt,name=account_number,json=accountNumber,proto3" json:"account_number,omitempty"`
 	CardType      string                 `protobuf:"bytes,2,opt,name=card_type,json=cardType,proto3" json:"card_type,omitempty"`
 	CardBrand     string                 `protobuf:"bytes,3,opt,name=card_brand,json=cardBrand,proto3" json:"card_brand,omitempty"`
+	Email         string                 `protobuf:"bytes,4,opt,name=email,proto3" json:"email,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -77,6 +78,13 @@ func (x *CreateCardRequest) GetCardType() string {
 func (x *CreateCardRequest) GetCardBrand() string {
 	if x != nil {
 		return x.CardBrand
+	}
+	return ""
+}
+
+func (x *CreateCardRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
 	}
 	return ""
 }
@@ -1061,12 +1069,13 @@ var File_bank_bank_proto protoreflect.FileDescriptor
 
 const file_bank_bank_proto_rawDesc = "" +
 	"\n" +
-	"\x0fbank/bank.proto\x12\x04bank\"v\n" +
+	"\x0fbank/bank.proto\x12\x04bank\"\x8c\x01\n" +
 	"\x11CreateCardRequest\x12%\n" +
 	"\x0eaccount_number\x18\x01 \x01(\tR\raccountNumber\x12\x1b\n" +
 	"\tcard_type\x18\x02 \x01(\tR\bcardType\x12\x1d\n" +
 	"\n" +
-	"card_brand\x18\x03 \x01(\tR\tcardBrand\"w\n" +
+	"card_brand\x18\x03 \x01(\tR\tcardBrand\x12\x14\n" +
+	"\x05email\x18\x04 \x01(\tR\x05email\"w\n" +
 	"\x12RequestCardRequest\x12%\n" +
 	"\x0eaccount_number\x18\x01 \x01(\tR\raccountNumber\x12\x1b\n" +
 	"\tcard_type\x18\x02 \x01(\tR\bcardType\x12\x1d\n" +
