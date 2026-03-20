@@ -389,19 +389,19 @@ func (s *Server) GetEmployeeByID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"id":            resp.Id,
-		"first_name":    resp.FirstName,
-		"last_name":     resp.LastName,
-		"birth_date":    time.Unix(resp.BirthDate, 0).Format(time.DateOnly),
-		"gender":        resp.Gender,
-		"email":         resp.Email,
+		"id":           resp.Id,
+		"first_name":   resp.FirstName,
+		"last_name":    resp.LastName,
+		"birth_date":   time.Unix(resp.BirthDate, 0).Format(time.DateOnly),
+		"gender":       resp.Gender,
+		"email":        resp.Email,
 		"phone_number": resp.PhoneNumber,
 		"address":      resp.Address,
-		"username":      resp.Username,
-		"position":      resp.Position,
-		"department":    resp.Department,
-		"active":        resp.Active,
-		"permissions":   resp.Permissions,
+		"username":     resp.Username,
+		"position":     resp.Position,
+		"department":   resp.Department,
+		"active":       resp.Active,
+		"permissions":  resp.Permissions,
 	})
 }
 
