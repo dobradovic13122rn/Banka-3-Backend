@@ -1,4 +1,4 @@
-package user
+package bank
 
 import (
 	"time"
@@ -6,16 +6,16 @@ import (
 
 type (
 	// Defining ALL 10 Enums which Dusan added
-	owner_type          string
-	account_type        string
-	card_type           string
-	card_status         string
-	loan_type           string
-	loan_status         string
-	loan_request_status string
-	interest_rate_type  string
-	installment_status  string
-	employment_status   string
+	owner_type         string
+	account_type       string
+	card_type          string
+	card_status        string
+	loan_type          string
+	loan_status        string
+	interest_rate_type string
+	installment_status string
+	employment_status  string
+	card_brand         string
 
 	// Note, unlike type aliease these are all destinct types, only
 	// their underlying type is string.
@@ -24,6 +24,8 @@ type (
 )
 
 // These are the enums which will be used by the models below
+//
+//goland:noinspection ALL
 const (
 	// ownet_type enum
 	Personal owner_type = "personal"
@@ -55,11 +57,6 @@ const (
 	Paid     loan_status = "paid"
 	Late     loan_status = "late"
 
-	// loan_request_status enum
-	LoanRequestPending  loan_request_status = "pending"
-	LoanRequestApproved loan_request_status = "approved"
-	LoanRequestRejected loan_request_status = "rejected"
-
 	// interest_rate_type enum
 	Fixed    interest_rate_type = "fixed"
 	Variable interest_rate_type = "variable"
@@ -73,66 +70,14 @@ const (
 	Full_time  employment_status = "full_time"
 	Temporary  employment_status = "temporary"
 	Unemployed employment_status = "unemployed"
+
+	visa       card_brand = "visa"
+	mastercard card_brand = "mastercard"
+	amex       card_brand = "amex"
+	dinacard   card_brand = "dinacard"
 )
 
 type (
-	Client struct {
-		Id            uint64    `gorm:"column:id;type:bigint;not null;primaryKey"`
-		First_name    string    `gorm:"column:first_name;type:varchar(100);not null"`
-		Last_name     string    `gorm:"column:last_name;type:varchar(100);not null"`
-		Date_of_birth time.Time `gorm:"column:date_of_birth;type:date;not null"`
-		Gender        string    `gorm:"column:gender;type:varchar(1);not null"`
-		Email         string    `gorm:"column:email;type:varchar(255);unique;not null"`
-		Phone_number  string    `gorm:"column:phone_number;type:varchar(20);not null"`
-		Address       string    `gorm:"column:address;type:varchar(255);not null"`
-		Password      []byte    `gorm:"column:password;type:bytea;not null"`
-		Salt_password []byte    `gorm:"column:salt_password;type:bytea;not null"`
-		Created_at    time.Time `gorm:"column:created_at;not null;autoCreateTime"`
-		Updated_at    time.Time `gorm:"column:updated_at;not null;autoUpdateTime"`
-	}
-
-	Employee struct {
-		Id            uint64    `gorm:"column:id;type:bigint;not null;primaryKey"`
-		First_name    string    `gorm:"column:first_name;type:varchar(100);not null"`
-		Last_name     string    `gorm:"column:last_name;type:varchar(100);not null"`
-		Date_of_birth time.Time `gorm:"column:date_of_birth;type:date;not null"`
-
-		Gender        string       `gorm:"column:gender;type:varchar(1);not null"`
-		Email         string       `gorm:"column:email;type:varchar(255);unique;not null"`
-		Phone_number  string       `gorm:"column:phone_number;type:varchar(20); not null"`
-		Address       string       `gorm:"column:address;type:varchar(255);not null"`
-		Username      string       `gorm:"column:username;type:varchar(100);unique;not null"`
-		Password      []byte       `gorm:"column:password;type:bytea;not null"`
-		Salt_password []byte       `gorm:"column:salt_password;type:bytea;not null"`
-		Position      string       `gorm:"column:position;type:varchar(100);not null"`
-		Department    string       `gorm:"column:department;type:varchar(100);not null"`
-		Active        bool         `gorm:"column:active;type:bool; not null"`
-		Created_at    time.Time    `gorm:"column:created_at;not null;autoCreateTime"`
-		Updated_at    time.Time    `gorm:"column:updated_at;not null;autoUpdateTime"`
-		Permissions   []Permission `gorm:"many2many:employee_permissions;joinForeignKey:Employee_id;joinReferences:PermissionId"`
-	}
-
-	Permission struct {
-		Id   uint64 `gorm:"column:id;type:bigint;not null;primaryKey"`
-		Name string `gorm:"column:name;type:varchar(100);not null"`
-	}
-	EmployeePermissions struct {
-		EmployeeId   uint64 `gorm:"column:employee_id;not null"`
-		PermissionId uint64 `gorm:"column:permission_id;not null"`
-	}
-
-	Get_employees struct {
-		Id              int    `gorm:"column:id;type:bigint;not null;primaryKey"`
-		First_name      string `gorm:"column:first_name;type:varchar(100);not null"`
-		Last_name       string `gorm:"column:last_name;type:varchar(100);not null"`
-		Email           string `gorm:"column:email;type:varchar(255);unique;not null"`
-		Position        string `gorm:"column:position;type:varchar(100);not null"`
-		Phone_number    string `gorm:"column:phone_number;type:varchar(20);not null"`
-		Active          bool   `gorm:"column:active;type:bool; not null"`
-		Permission_id   int64  `gorm:"column:Permission_id;type:bigint;not null;primaryKey"`
-		Permission_name string `gorm:"column:Permission_name;type:varchar(100);not null"`
-	}
-
 	Currency struct {
 		Id          int64  `gorm:"column:id;type:bigserial;not null;primaryKey"`
 		Label       string `gorm:"column:label;type:varchar(8);not null;unique"`
@@ -141,6 +86,15 @@ type (
 		Countries   string `gorm:"column:countries;type:TEXT;not null"`
 		Description string `gorm:"column:description;type:varchar(1023);not null"`
 		Active      bool   `gorm:"column:active;type:BOOLEAN;not null;default:true"`
+	}
+
+	PaymentRecipient struct {
+		Id             int64     `gorm:"column:id;type:bigserial;not null;primaryKey"`
+		Client_id      int64     `gorm:"column:client_id;type:bigint;not null;references clients(id)"`
+		Name           string    `gorm:"column:name;type:varchar(127);not null"`
+		Account_number string    `gorm:"column:account_number;type:varchar(20);not null"`
+		Created_at     time.Time `gorm:"column:created_at;not null;autoCreateTime"`
+		Updated_at     time.Time `gorm:"column:updated_at;not null;autoUpdateTime"`
 	}
 
 	Account struct {
@@ -184,13 +138,24 @@ type (
 		Id             int64       `gorm:"column:id;type:bigserial;not null;primaryKey"`
 		Number         string      `gorm:"column:number;type:varchar(20);not null;unique"`
 		Type           card_type   `gorm:"column:type;type:card_type;not null;default:'debit'"`
-		Name           string      `gorm:"column:name;type:varchar(127);not null"`
+		Brand          card_brand  `gorm:"column:brand;type:card_brand;not null"`
 		Creation_date  time.Time   `gorm:"column:creation_date;not null;autoCreateTime"`
 		Valid_until    time.Time   `gorm:"column:created_at;not null;autoCreateTime"`
 		Account_number string      `gorm:"column:account_number;type:varchar(20);references accounts(number)"`
 		Cvv            string      `gorm:"column:cvv;type:varchar(7);not null"`
 		Card_limit     int64       `gorm:"column:card_limit;type:bigint"`
 		Status         card_status `gorm:"column:status;type:card_status;not null;default 'active'"`
+	}
+
+	CardRequest struct {
+		Id             int64      `gorm:"column:id;type:bigserial;not null;primaryKey"`
+		Account_number string     `gorm:"column:account_number;type:varchar(20);references accounts(number)"`
+		Type           card_type  `gorm:"column:type;type:card_type;not null;default:'debit'"`
+		Brand          card_brand `gorm:"column:brand;type:card_brand;not null"`
+		Token          string     `gorm:"column:token;type:varchar(255);not null"`
+		ExpirationDate time.Time  `gorm:"column:expiration_date;not null"`
+		Complete       bool       `gorm:"column:complete;type:boolean;not null;default false"`
+		Email          string     `gorm:"column:email;type:varchar(255);not null"`
 	}
 
 	AuthorizedParty struct {
@@ -264,14 +229,17 @@ type (
 	}
 
 	LoanRequest struct {
-		Id               int64               `gorm:"column:id;type:bigserial;not null;primaryKey"`
-		Type             loan_type           `gorm:"column:type;type:loan_type;not null"`
-		Currency_id      int64               `gorm:"column:currency_id;type:bigint;references currencies(id)"`
-		Amount           float64             `gorm:"column:amount;type:decimal(20,2);not null"`
-		Repayment_period int64               `gorm:"column:repayment_period;type:bigint;not null"`
-		Account_id       int64               `gorm:"column:account_id;type:bigint;references accounts(id)"`
-		Status           loan_request_status `gorm:"column:status;type:loan_request_status;not null;default 'pending'"`
-		Submission_date  time.Time           `gorm:"column:submission_date;not null;autoCreateTime"`
+		Id                      int64              `gorm:"column:id;type:bigserial;not null;primaryKey"`
+		Type                    loan_type          `gorm:"column:type;type:loan_type;not null"`
+		Interest_rate_type      interest_rate_type `gorm:"column:interest_rate_type;type:interest_rate_type;not null"`
+		Purpose                 string             `gorm:"column:purpose;type:varchar(1023);not null"`
+		Monthly_installment     string             `gorm:"column:monthly_installment;type:decimal(20,2);not null"`
+		Currency_id             int64              `gorm:"column:currency_id;type:bigint;references currencies(id)"`
+		Amount                  float64            `gorm:"column:amount;type:decimal(20,2);not null"`
+		Employment_status       employment_status  `gorm:"column:employment_status;type:employment_status;not null"`
+		Current_employment_time int64              `gorm:"column:current_employment_time;type:bigint;not null"`
+		Phone_contact           string             `gorm:"column:phone_contact;type:varchar(20);not null"`
+		Account_id              int64              `gorm:"column:account_id;type:bigint;references accounts(id)"`
 	}
 
 	VerificationCode struct {
@@ -285,18 +253,57 @@ type (
 	}
 )
 
-func (Client) TableName() string {
-	return "clients"
+func (Currency) TableName() string {
+	return "currencies"
 }
 
-func (Employee) TableName() string {
-	return "employees"
+func (Account) TableName() string {
+	return "accounts"
 }
 
-func (Permission) TableName() string {
-	return "permissions"
+func (ActivityCode) TableName() string {
+	return "activity_codes"
 }
 
-func (EmployeePermissions) TableName() string {
-	return "employee_permissions"
+func (Company) TableName() string {
+	return "companies"
+}
+
+func (Card) TableName() string {
+	return "cards"
+}
+
+func (AuthorizedParty) Table_name() string {
+	return "authorized_party"
+}
+
+func (Payment) TableName() string {
+	return "payments"
+}
+
+func (Transfer) TableName() string {
+	return "transfers"
+}
+
+func (Loan) TableName() string {
+	return "loans"
+}
+
+func (LoanInstallment) TableName() string {
+	return "loan_installment"
+}
+
+func (LoanRequest) TableName() string {
+	return "loan_request"
+}
+
+func (VerificationCode) TableName() string {
+	return "loan_request"
+}
+
+func (CardRequest) TableName() string {
+	return "card_requests"
+}
+func (PaymentRecipient) TableName() string {
+	return "payment_recipients"
 }
