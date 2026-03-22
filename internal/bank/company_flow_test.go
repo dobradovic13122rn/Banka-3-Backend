@@ -217,6 +217,11 @@ func TestUpdateCompanySuccess(t *testing.T) {
 	server, mock, db := newTestServer(t)
 	defer func() { _ = db.Close() }()
 
+	mock.ExpectClose()
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Fatalf("sql expectations: %v", err)
+	}
+
 	mock.ExpectBegin()
 	mock.ExpectQuery(regexp.QuoteMeta(`SELECT EXISTS(SELECT 1 FROM companies WHERE id = $1)`)).
 		WithArgs(int64(10)).

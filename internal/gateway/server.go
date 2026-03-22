@@ -13,7 +13,6 @@ import (
 
 type Server struct {
 	UserClient         userpb.UserServiceClient
-	BankClient         bankpb.BankServiceClient
 	NotificationClient notificationpb.NotificationServiceClient
 	BankClient         bankpb.BankServiceClient
 }

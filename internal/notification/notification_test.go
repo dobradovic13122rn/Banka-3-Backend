@@ -13,9 +13,9 @@ type MockSender struct {
 	ShouldFail bool
 }
 
-func (m *MockSender) Send(to []string, subject string, body string) error {
+func (m *MockSender) Send(_ []string, _ string, _ string) error {
 	if m.ShouldFail {
-		return errors.New("Failed to send email")
+		return errors.New("failed to send email")
 	}
 	return nil
 }

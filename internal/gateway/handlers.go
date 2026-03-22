@@ -443,7 +443,7 @@ func (s *Server) CreateAccount(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
 	defer cancel()
 
-	resp, err := s.UserClient.CreateAccount(ctx, &userpb.CreateAccountRequest{
+	resp, err := s.BankClient.CreateAccount(ctx, &bankpb.CreateAccountRequest{
 		Name:             req.Name,
 		Owner:            req.Owner,
 		Currency:         req.Currency,

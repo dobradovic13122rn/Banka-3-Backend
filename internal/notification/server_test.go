@@ -10,7 +10,7 @@ import (
 
 type failingSender struct{}
 
-func (f *failingSender) Send(to []string, subject string, body string) error {
+func (f *failingSender) Send(_ []string, _ string, _ string) error {
 	return errors.New("send failed")
 }
 

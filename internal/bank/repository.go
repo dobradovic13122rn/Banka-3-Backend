@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"math/big"
 	"strings"
 	"time"
@@ -269,7 +270,12 @@ func (s *Server) GetCardsRecords() ([]*Card, error) {
 	if err != nil {
 		return nil, fmt.Errorf("listing cards: %w", err)
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Printf("[ERROR] closing rows: %v", err)
+		}
+	}(rows)
 
 	var cards []*Card
 	for rows.Next() {

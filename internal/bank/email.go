@@ -27,7 +27,12 @@ func (s *Server) sendCardCreatedEmail(ctx context.Context, email string) error {
 		log.Printf("[NotificationClient] ERROR: Failed to create gRPC client for %s: %v", addr, err)
 		return err
 	}
-	defer conn.Close()
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Printf("[NotificationClient] ERROR: Failed to close gRPC connection to %s: %v", addr, err)
+		}
+	}(conn)
 
 	client := notificationpb.NewNotificationServiceClient(conn)
 	_, err = client.SendCardCreatedEmail(ctx, &notificationpb.CardCreatedMailRequest{
@@ -56,7 +61,12 @@ func (s *Server) sendCardConfirmationEmail(ctx context.Context, email string, li
 		log.Printf("[NotificationClient] ERROR: Failed to create gRPC client for %s: %v", addr, err)
 		return err
 	}
-	defer conn.Close()
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Printf("[NotificationClient] ERROR: Failed to close gRPC connection to %s: %v", addr, err)
+		}
+	}(conn)
 
 	client := notificationpb.NewNotificationServiceClient(conn)
 	_, err = client.SendCardConfirmationEmail(ctx, &notificationpb.CardConfirmationMailRequest{
