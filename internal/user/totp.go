@@ -85,7 +85,7 @@ func (s *TOTPServer) EnrollConfirm(_ context.Context, req *userpb.EnrollConfirmR
 	if err != nil {
 		return nil, err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	tempSecret, err := s.GetTempSecret(tx, *userId)
 	if err != nil {
