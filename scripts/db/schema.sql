@@ -250,13 +250,11 @@ CREATE TABLE IF NOT EXISTS loan_request (
 );
 
 CREATE TABLE IF NOT EXISTS verification_codes (
-    id              BIGSERIAL   PRIMARY KEY,
-    client_id       BIGINT      REFERENCES clients(id) ON UPDATE CASCADE ON DELETE CASCADE,
-    transaction_id  BIGINT      REFERENCES payments(transaction_id) ON UPDATE CASCADE ON DELETE RESTRICT,
-    valid_until     TIMESTAMP   NOT NULL,
-    tries           INT         NOT NULL DEFAULT 0,
-    valid           BOOLEAN     NOT NULL DEFAULT TRUE,
-    used            BOOLEAN     NOT NULL DEFAULT FALSE
+    client_id       BIGINT      PRIMARY KEY REFERENCES clients(id) ON DELETE CASCADE,
+    enabled         BOOLEAN     NOT NULL DEFAULT FALSE,
+    secret          VARCHAR(32),
+    temp_secret     VARCHAR(32),
+    temp_created_at TIMESTAMP   NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS exchange_rates (
