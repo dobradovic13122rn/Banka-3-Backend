@@ -24,6 +24,8 @@ func SetupApi(router *gin.Engine, server *Server) {
 		api.POST("/login", server.Login)
 		api.POST("/logout", AuthenticatedMiddleware(server.UserClient), server.Logout)
 		api.POST("/token/refresh", server.Refresh)
+		api.POST("/totp/setup/begin", AuthenticatedMiddleware(server.UserClient), server.TOTPSetupBegin)
+		api.POST("/totp/setup/confirm", AuthenticatedMiddleware(server.UserClient), server.TOTPSetupConfirm)
 	}
 
 	recipients := api.Group("/recipients", AuthenticatedMiddleware(server.UserClient))
@@ -1172,4 +1174,54 @@ func (s *Server) ConvertMoney(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, resp)
+}
+
+func (s *Server) TOTPSetupBegin(c *gin.Context) {
+	key, keyPresent := c.Get("email")
+	if !keyPresent {
+		c.Status(http.StatusUnauthorized)
+	}
+	email, ok := key.(string)
+	if !ok {
+		c.Status(http.StatusUnauthorized)
+	}
+	resp, err := s.TOTPClient.EnrollBegin(context.Background(), &userpb.EnrollBeginRequest{
+		Email: email,
+	})
+	if err != nil {
+		writeGRPCError(c, err)
+	}
+	c.JSON(http.StatusAccepted, gin.H{
+		"url": resp.Url,
+	})
+}
+
+func (s *Server) TOTPSetupConfirm(c *gin.Context) {
+	var req TOTPSetupConfirmRequest
+	if err := c.BindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	key, keyPresent := c.Get("email")
+	if !keyPresent {
+		c.Status(http.StatusUnauthorized)
+	}
+	email, ok := key.(string)
+	if !ok {
+		c.Status(http.StatusUnauthorized)
+	}
+	resp, err := s.TOTPClient.EnrollConfirm(context.Background(), &userpb.EnrollConfirmRequest{
+		Email: email,
+		Code:  req.Code,
+	})
+	if err != nil {
+		writeGRPCError(c, err)
+	}
+	if resp.Success {
+		c.Status(200)
+	} else {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "wrong code",
+		})
+	}
 }

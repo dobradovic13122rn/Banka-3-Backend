@@ -186,3 +186,7 @@ type conversionRequest struct {
 	ToCurrency   string  `json:"to_currency" binding:"required"`
 	Amount       float64 `json:"amount" binding:"required,gt=0"`
 }
+
+type TOTPSetupConfirmRequest struct {
+	Code string `json:"code" binding:"required"`
+}
