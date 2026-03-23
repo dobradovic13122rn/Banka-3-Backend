@@ -51,7 +51,7 @@ func main() {
 	log.Println("connected to database...")
 	defer func() { _ = db.Close() }()
 
-	exchangeService := internalExchange.NewServer(db, gorm_db)
+	exchangeService := internalExchange.NewServer(gorm_db)
 
 	srv := grpc.NewServer()
 	exchange.RegisterExchangeServiceServer(srv, exchangeService)
