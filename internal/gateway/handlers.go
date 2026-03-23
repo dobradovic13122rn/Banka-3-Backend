@@ -7,8 +7,10 @@ import (
 	"strings"
 	"time"
 
+	exchangepb "github.com/RAF-SI-2025/Banka-3-Backend/gen/exchange"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 
 	bankpb "github.com/RAF-SI-2025/Banka-3-Backend/gen/bank"
 	userpb "github.com/RAF-SI-2025/Banka-3-Backend/gen/user"
@@ -88,6 +90,12 @@ func SetupApi(router *gin.Engine, server *Server) {
 		cards.POST("/request", AuthenticatedMiddleware(server.UserClient), server.RequestCard)
 		cards.GET("/confirm", server.ConfirmCard)
 		cards.PATCH("/:id/block", AuthenticatedMiddleware(server.UserClient), server.BlockCard)
+	}
+
+	exchange := api.Group("/exchange")
+	{
+		exchange.GET("/rates", server.GetExchangeRates)
+		exchange.POST("/convert", server.ConvertMoney)
 	}
 }
 
@@ -1133,4 +1141,35 @@ func (s *Server) GenerateTransactionPDF(c *gin.Context) {
 	c.Header("Content-Type", "application/pdf")
 	c.Header("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, resp.FileName))
 	c.Data(http.StatusOK, "application/pdf", resp.Pdf)
+}
+
+func (s *Server) GetExchangeRates(c *gin.Context) {
+	resp, err := s.ExchangeClinet.GetExchangeRates(c.Request.Context(), &exchangepb.ExchangeRateListRequest{})
+	if err != nil {
+		st, _ := status.FromError(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": st.Message()})
+		return
+	}
+	c.JSON(http.StatusOK, resp)
+}
+
+func (s *Server) ConvertMoney(c *gin.Context) {
+	var req conversionRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	resp, err := s.ExchangeClinet.ConvertMoney(c.Request.Context(), &exchangepb.ConversionRequest{
+		FromCurrency: req.FromCurrency,
+		ToCurrency:   req.ToCurrency,
+		Amount:       req.Amount,
+	})
+	if err != nil {
+		st, _ := status.FromError(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": st.Message()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp)
 }

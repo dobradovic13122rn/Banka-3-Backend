@@ -258,3 +258,10 @@ CREATE TABLE IF NOT EXISTS verification_codes (
     valid           BOOLEAN     NOT NULL DEFAULT TRUE,
     used            BOOLEAN     NOT NULL DEFAULT FALSE
 );
+
+CREATE TABLE IF NOT EXISTS exchange_rates (
+    currency_code VARCHAR(3)     PRIMARY KEY,
+    rate_to_rsd   DECIMAL(20, 6) NOT NULL,
+    updated_at    TIMESTAMP      NOT NULL DEFAULT NOW(),
+    valid_until   TIMESTAMP      NOT NULL DEFAULT NOW()
+);
