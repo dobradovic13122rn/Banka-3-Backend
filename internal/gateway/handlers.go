@@ -676,7 +676,12 @@ func (s *Server) GetAccounts(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, resp.Accounts)
+	accounts := resp.Accounts
+	if accounts == nil {
+		accounts = []*bankpb.Account{}
+	}
+
+	c.JSON(http.StatusOK, accounts)
 }
 
 func (s *Server) GetAccountByNumber(c *gin.Context) {

@@ -38,7 +38,10 @@ func (s *Server) ListAccounts(ctx context.Context, req *bankpb.ListAccountsReque
 	}
 
 	clientResp, err := userClient.GetClients(ctx, &userpb.GetClientsRequest{Email: email})
-	if err != nil || len(clientResp.Clients) == 0 {
+	if err != nil {
+		return nil, status.Error(codes.Internal, "failed to query user service")
+	}
+	if len(clientResp.Clients) == 0 {
 		return nil, status.Error(codes.NotFound, "client not found")
 	}
 
@@ -216,14 +219,14 @@ func (s *Server) getEmailFromMetadata(ctx context.Context) (string, error) {
 func (s *Server) getUserServiceClient() (userpb.UserServiceClient, *grpc.ClientConn, error) {
 	addr := os.Getenv("USER_SERVICE_ADDR")
 	if addr == "" {
-		addr = "user-service:50051"
+		addr = "user:50051"
 	}
 	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	return userpb.NewUserServiceClient(conn), conn, err
 }
 
 func (s *Server) mapSliceToProto(accounts []Account) []*bankpb.Account {
-	var pbAccounts []*bankpb.Account
+	pbAccounts := make([]*bankpb.Account, 0, len(accounts))
 	for _, a := range accounts {
 		pbAccounts = append(pbAccounts, s.mapToAccountProto(a))
 	}
