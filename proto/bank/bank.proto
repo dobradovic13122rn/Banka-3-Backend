@@ -251,7 +251,7 @@ message PaymentRequest{
   string recipient_account = 2;
   string recipient_name = 3;
   int64  amount = 4;
-  string payment_code = 5;
+  int64 payment_code = 5;
   string reference_number = 6;
   string purpose = 7;
 }
@@ -263,7 +263,7 @@ message PaymentResponse{
   int64 final_amount = 4;
   int64 fee = 5;
   string currency = 6;
-  string payment_code = 7;
+  int64 payment_code = 7;
   string reference_number = 8;
   string purpose = 9;
   string status = 10;

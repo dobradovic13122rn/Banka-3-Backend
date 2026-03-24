@@ -182,6 +182,7 @@ type (
 		Start_amount     int64     `gorm:"column:start_amount;type:bigint;not null"`
 		End_amount       int64     `gorm:"column:end_amount;type:bigint;not null"`
 		Commission       int64     `gorm:"column:comission;type:bigint;not null"`
+		Status           string    `gorm:"column:status;type:varchar(20);not null"`
 		Recipient_id     int64     `gorm:"column:recipient_id;type:bigint;references clients(id)"`
 		Transaction_code int       `gorm:"column:transaction_code;type:int;not null"`
 		Call_number      string    `gorm:"column:call_number;type:varchar(31);not null"`

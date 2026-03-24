@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
 	exchangepb "github.com/RAF-SI-2025/Banka-3-Backend/gen/exchange"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
@@ -655,7 +657,72 @@ func (s *Server) PayoutMoneyToOtherAccount(c *gin.Context) {
 		writeBindError(c, err)
 		return
 	}
-	c.Status(http.StatusNotImplemented)
+	println(c.Request)
+
+	paymentCodeParsed, err := strconv.ParseInt(req.PaymentCode, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid payment_code",
+		})
+		return
+	}
+	if req.Amount <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "amount must be greater than zero",
+		})
+		return
+	}
+
+	if req.SenderAccount == req.RecipientAccount {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "sender and recipient account must not be the same account",
+		})
+		return
+	}
+	res, err := s.BankClient.PayoutMoneyToOtherAccount(context.Background(), &bankpb.PaymentRequest{
+		SenderAccount:    req.SenderAccount,
+		RecipientAccount: req.RecipientAccount,
+		RecipientName:    req.RecipientName,
+		Amount:           req.Amount,
+		PaymentCode:      paymentCodeParsed,
+		ReferenceNumber:  req.ReferenceNumber,
+		Purpose:          req.Purpose,
+	})
+	if err != nil {
+		st, ok := status.FromError(err)
+		if ok {
+			switch st.Code() {
+
+			case codes.NotFound:
+				c.JSON(http.StatusNotFound, gin.H{
+					"error": st.Message(),
+				})
+
+			case codes.FailedPrecondition:
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error": st.Message(),
+				})
+
+			case codes.InvalidArgument:
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error": st.Message(),
+				})
+
+			default:
+				c.JSON(http.StatusInternalServerError, gin.H{
+					"error": "internal server error",
+				})
+			}
+			return
+		}
+		// fallback if it's not a gRPC status error
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "unknown error",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 func (s *Server) TransferMoneyBetweenAccounts(c *gin.Context) {
 	var req transferRequest

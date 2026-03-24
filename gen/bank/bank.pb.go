@@ -2096,7 +2096,7 @@ type PaymentRequest struct {
 	RecipientAccount string                 `protobuf:"bytes,2,opt,name=recipient_account,json=recipientAccount,proto3" json:"recipient_account,omitempty"`
 	RecipientName    string                 `protobuf:"bytes,3,opt,name=recipient_name,json=recipientName,proto3" json:"recipient_name,omitempty"`
 	Amount           int64                  `protobuf:"varint,4,opt,name=amount,proto3" json:"amount,omitempty"`
-	PaymentCode      string                 `protobuf:"bytes,5,opt,name=payment_code,json=paymentCode,proto3" json:"payment_code,omitempty"`
+	PaymentCode      int64                  `protobuf:"varint,5,opt,name=payment_code,json=paymentCode,proto3" json:"payment_code,omitempty"`
 	ReferenceNumber  string                 `protobuf:"bytes,6,opt,name=reference_number,json=referenceNumber,proto3" json:"reference_number,omitempty"`
 	Purpose          string                 `protobuf:"bytes,7,opt,name=purpose,proto3" json:"purpose,omitempty"`
 	unknownFields    protoimpl.UnknownFields
@@ -2161,11 +2161,11 @@ func (x *PaymentRequest) GetAmount() int64 {
 	return 0
 }
 
-func (x *PaymentRequest) GetPaymentCode() string {
+func (x *PaymentRequest) GetPaymentCode() int64 {
 	if x != nil {
 		return x.PaymentCode
 	}
-	return ""
+	return 0
 }
 
 func (x *PaymentRequest) GetReferenceNumber() string {
@@ -2190,7 +2190,7 @@ type PaymentResponse struct {
 	FinalAmount     int64                  `protobuf:"varint,4,opt,name=final_amount,json=finalAmount,proto3" json:"final_amount,omitempty"`
 	Fee             int64                  `protobuf:"varint,5,opt,name=fee,proto3" json:"fee,omitempty"`
 	Currency        string                 `protobuf:"bytes,6,opt,name=currency,proto3" json:"currency,omitempty"`
-	PaymentCode     string                 `protobuf:"bytes,7,opt,name=payment_code,json=paymentCode,proto3" json:"payment_code,omitempty"`
+	PaymentCode     int64                  `protobuf:"varint,7,opt,name=payment_code,json=paymentCode,proto3" json:"payment_code,omitempty"`
 	ReferenceNumber string                 `protobuf:"bytes,8,opt,name=reference_number,json=referenceNumber,proto3" json:"reference_number,omitempty"`
 	Purpose         string                 `protobuf:"bytes,9,opt,name=purpose,proto3" json:"purpose,omitempty"`
 	Status          string                 `protobuf:"bytes,10,opt,name=status,proto3" json:"status,omitempty"`
@@ -2271,11 +2271,11 @@ func (x *PaymentResponse) GetCurrency() string {
 	return ""
 }
 
-func (x *PaymentResponse) GetPaymentCode() string {
+func (x *PaymentResponse) GetPaymentCode() int64 {
 	if x != nil {
 		return x.PaymentCode
 	}
-	return ""
+	return 0
 }
 
 func (x *PaymentResponse) GetReferenceNumber() string {
@@ -3269,7 +3269,7 @@ const file_bank_bank_proto_rawDesc = "" +
 	"\x11recipient_account\x18\x02 \x01(\tR\x10recipientAccount\x12%\n" +
 	"\x0erecipient_name\x18\x03 \x01(\tR\rrecipientName\x12\x16\n" +
 	"\x06amount\x18\x04 \x01(\x03R\x06amount\x12!\n" +
-	"\fpayment_code\x18\x05 \x01(\tR\vpaymentCode\x12)\n" +
+	"\fpayment_code\x18\x05 \x01(\x03R\vpaymentCode\x12)\n" +
 	"\x10reference_number\x18\x06 \x01(\tR\x0freferenceNumber\x12\x18\n" +
 	"\apurpose\x18\a \x01(\tR\apurpose\"\xe9\x02\n" +
 	"\x0fPaymentResponse\x12!\n" +
@@ -3280,7 +3280,7 @@ const file_bank_bank_proto_rawDesc = "" +
 	"\ffinal_amount\x18\x04 \x01(\x03R\vfinalAmount\x12\x10\n" +
 	"\x03fee\x18\x05 \x01(\x03R\x03fee\x12\x1a\n" +
 	"\bcurrency\x18\x06 \x01(\tR\bcurrency\x12!\n" +
-	"\fpayment_code\x18\a \x01(\tR\vpaymentCode\x12)\n" +
+	"\fpayment_code\x18\a \x01(\x03R\vpaymentCode\x12)\n" +
 	"\x10reference_number\x18\b \x01(\tR\x0freferenceNumber\x12\x18\n" +
 	"\apurpose\x18\t \x01(\tR\apurpose\x12\x16\n" +
 	"\x06status\x18\n" +

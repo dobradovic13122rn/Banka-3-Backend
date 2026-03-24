@@ -1308,3 +1308,39 @@ func (s *Server) CreateLoanRequest(ctx context.Context, req *bankpb.CreateLoanRe
 
 	return &bankpb.CreateLoanRequestResponse{}, nil
 }
+
+func (s *Server) PayoutMoneyToOtherAccount(
+	ctx context.Context,
+	req *bankpb.PaymentRequest,
+) (*bankpb.PaymentResponse, error) {
+
+	_, err := s.ProcessPayment(req.SenderAccount, req.RecipientAccount,
+		req.Amount, req.Amount, 0, req.PaymentCode,
+		req.ReferenceNumber, req.Purpose)
+	if err != nil {
+		switch {
+		case errors.Is(err, ErrAccountNotFound):
+			return nil, status.Error(codes.NotFound, "account not found")
+		case errors.Is(err, ErrInsufficientFunds):
+			return nil, status.Error(codes.FailedPrecondition, "insufficient funds")
+		case errors.Is(err, ErrLimitExceeded):
+			return nil, status.Error(codes.FailedPrecondition, "limit exceeded")
+		default:
+			return nil, status.Error(codes.Internal, "internal error")
+		}
+	}
+
+	return &bankpb.PaymentResponse{
+		FromAccount:     req.SenderAccount,
+		ToAccount:       req.RecipientAccount,
+		InitialAmount:   req.Amount,
+		FinalAmount:     req.Amount,
+		Fee:             0,
+		Currency:        "EUR",
+		PaymentCode:     req.PaymentCode,
+		ReferenceNumber: req.ReferenceNumber,
+		Purpose:         req.Purpose,
+		Status:          "realized",
+		Timestamp:       time.Now().Format("2006-01-02 15:04:05"), //standard layout of Go, don't change this date, it's layout, not hardcode
+	}, nil
+}
