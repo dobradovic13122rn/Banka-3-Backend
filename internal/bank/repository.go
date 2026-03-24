@@ -821,4 +821,3 @@ func (s *Server) getAllLoans(loanType, accountNumber, loanStatus string) ([]loan
 
 	return loans, nil
 }
-
