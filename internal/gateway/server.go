@@ -6,6 +6,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	bankpb "github.com/RAF-SI-2025/Banka-3-Backend/gen/bank"
+	exchangepb "github.com/RAF-SI-2025/Banka-3-Backend/gen/exchange"
 	notificationpb "github.com/RAF-SI-2025/Banka-3-Backend/gen/notification"
 	userpb "github.com/RAF-SI-2025/Banka-3-Backend/gen/user"
 )
@@ -13,6 +15,8 @@ import (
 type Server struct {
 	UserClient         userpb.UserServiceClient
 	NotificationClient notificationpb.NotificationServiceClient
+	BankClient         bankpb.BankServiceClient
+	ExchangeClinet     exchangepb.ExchangeServiceClient
 }
 
 func NewServer() (*Server, error) {
@@ -26,6 +30,16 @@ func NewServer() (*Server, error) {
 		notificationAddr = "notification:50051"
 	}
 
+	bankAddr := os.Getenv("BANK_GRPC_ADDR")
+	if bankAddr == "" {
+		bankAddr = "bank:50051"
+	}
+
+	exchangeAddr := os.Getenv("EXCHANGE_GRPC_ADDR")
+	if exchangeAddr == "" {
+		exchangeAddr = "exhcange:50051"
+	}
+
 	userConn, err := grpc.NewClient(userAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
@@ -37,8 +51,25 @@ func NewServer() (*Server, error) {
 		return nil, err
 	}
 
+	bankConn, err := grpc.NewClient(bankAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		_ = userConn.Close()
+		_ = notificationConn.Close()
+		return nil, err
+	}
+
+	exchangeConn, err := grpc.NewClient(exchangeAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		_ = userConn.Close()
+		_ = notificationConn.Close()
+		_ = bankConn.Close()
+		return nil, err
+	}
+
 	return &Server{
 		UserClient:         userpb.NewUserServiceClient(userConn),
 		NotificationClient: notificationpb.NewNotificationServiceClient(notificationConn),
+		BankClient:         bankpb.NewBankServiceClient(bankConn),
+		ExchangeClinet:     exchangepb.NewExchangeServiceClient(exchangeConn),
 	}, nil
 }

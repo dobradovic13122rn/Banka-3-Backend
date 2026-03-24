@@ -9,12 +9,13 @@ services:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
       interval: 2s
       timeout: 5s
       retries: 10
-    networks: [banka]
+    networks: [ banka ]
 
   bank:
     container_name: bank
@@ -26,10 +27,27 @@ services:
     environment:
       DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable"
       GRPC_PORT: "50051"
+      NOTIFICATION_GRPC_ADDR: ${NOTIFICATION_GRPC_ADDR:-notification:50051}
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [banka]
+    networks: [ banka ]
+
+  exchange:
+    container_name: exchange
+    build:
+      context: .
+      dockerfile: cmd/exchange/Dockerfile
+    ports:
+      - "${EXCHANGE_GRPC_PORT:-50054}:50051"
+    environment:
+      DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable"
+      GRPC_PORT: "50051"
+      EXCHANGE_RATE_API_KEY: ${EXCHANGE_RATE_API_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [ banka ]
 
   user:
     container_name: user
@@ -49,7 +67,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [banka]
+    networks: [ banka ]
 
   notification:
     container_name: notification
@@ -61,10 +79,11 @@ services:
     environment:
       GRPC_PORT: "50051"
       FROM_EMAIL: "${FROM_EMAIL}"
+      FROM_EMAIL_AUTH: "${FROM_EMAIL_AUTH}"
       FROM_EMAIL_PASSWORD: "${FROM_EMAIL_PASSWORD}"
       FROM_EMAIL_SMTP: "${FROM_EMAIL_SMTP}"
       SMTP_ADDR: "${SMTP_ADDR}"
-    networks: [banka]
+    networks: [ banka ]
 
   gateway:
     container_name: gateway
@@ -77,10 +96,14 @@ services:
       HTTP_PORT: "8080"
       USER_GRPC_ADDR: "user:50051"
       NOTIFICATION_GRPC_ADDR: "notification:50051"
+      BANK_GRPC_ADDR: "bank:50051"
+      EXCHANGE_GRPC_ADDR: "exchange:50051"
     depends_on:
       - user
       - notification
-    networks: [banka]
+      - bank
+      - exchange
+    networks: [ banka ]
 
 volumes:
   pgdata:
