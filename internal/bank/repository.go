@@ -73,6 +73,7 @@ func scanPayment(scanner interface {
 		return nil, err
 	}
 	return &payment, nil
+}
 func scanTransfer(scanner interface {
 	Scan(dest ...any) error
 }) (*Transfer, error) {
@@ -916,6 +917,7 @@ func (s *Server) ProcessPayment(from_account string, to_account string, start_am
 		return nil, fmt.Errorf("commit: %w", err)
 	}
 	return payment, nil
+	}
 func (s *Server) CreateTransfer(fromAccount, toAccount string, amount int64) (*Transfer, error) {
 
 	if fromAccount == toAccount {
