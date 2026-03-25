@@ -1308,3 +1308,64 @@ func (s *Server) CreateLoanRequest(ctx context.Context, req *bankpb.CreateLoanRe
 
 	return &bankpb.CreateLoanRequestResponse{}, nil
 }
+
+func (s *Server) TransferMoneyBetweenAccounts(
+	ctx context.Context,
+	req *bankpb.TransferRequest,
+) (*bankpb.TransferResponse, error) {
+
+	if strings.TrimSpace(req.FromAccount) == "" || strings.TrimSpace(req.ToAccount) == "" {
+		return nil, status.Error(codes.InvalidArgument, "account numbers are required")
+	}
+
+	if req.Amount <= 0 {
+		return nil, status.Error(codes.InvalidArgument, "amount must be greater than zero")
+	}
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, status.Error(codes.Unauthenticated, "metadata missing")
+	}
+
+	emails := md.Get("user-email")
+	if len(emails) == 0 {
+		return nil, status.Error(codes.Unauthenticated, "email missing")
+	}
+	email := emails[0]
+
+	transfer, err := s.CreateTransfer(email, req.FromAccount, req.ToAccount, int64(req.Amount))
+	if err != nil {
+		switch {
+		case strings.Contains(err.Error(), "same account"):
+			return nil, status.Error(codes.InvalidArgument, err.Error())
+		case strings.Contains(err.Error(), "currency mismatch"):
+			return nil, status.Error(codes.InvalidArgument, err.Error())
+		default:
+			return nil, status.Error(codes.Internal, "failed to create transfer")
+		}
+	}
+
+	err = s.ConfirmTransfer(transfer.Transaction_id, "123456")
+	if err != nil {
+		switch {
+		case strings.Contains(err.Error(), "insufficient funds"):
+			return nil, status.Error(codes.FailedPrecondition, "insufficient funds")
+		default:
+			return nil, status.Error(codes.Internal, "transfer confirmation failed")
+		}
+	}
+
+	return &bankpb.TransferResponse{
+		FromAccount:     transfer.From_account,
+		ToAccount:       transfer.To_account,
+		InitialAmount:   transfer.Start_amount,
+		FinalAmount:     transfer.End_amount,
+		Fee:             transfer.Commission,
+		Currency:        strconv.FormatInt(transfer.Start_currency_id, 10),
+		PaymentCode:     "",
+		ReferenceNumber: "",
+		Purpose:         "",
+		Status:          "realized",
+		Timestamp:       fmt.Sprintf("%d", transfer.Timestamp.Unix()),
+	}, nil
+}

@@ -9,6 +9,7 @@ import (
 
 	exchangepb "github.com/RAF-SI-2025/Banka-3-Backend/gen/exchange"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
@@ -657,13 +658,49 @@ func (s *Server) PayoutMoneyToOtherAccount(c *gin.Context) {
 	}
 	c.Status(http.StatusNotImplemented)
 }
+
 func (s *Server) TransferMoneyBetweenAccounts(c *gin.Context) {
 	var req transferRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		writeBindError(c, err)
 		return
 	}
-	c.Status(http.StatusNotImplemented)
+
+	if req.Amount <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "amount must be greater than zero"})
+		return
+	}
+
+	if req.FromAccount == req.ToAccount {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "sender and recipient account must not be the same account"})
+		return
+	}
+
+	res, err := s.BankClient.TransferMoneyBetweenAccounts(context.Background(), &bankpb.TransferRequest{
+		FromAccount: req.FromAccount,
+		ToAccount:   req.ToAccount,
+		Amount:      req.Amount,
+		Description: req.Description,
+	})
+
+	if err != nil {
+		st, ok := status.FromError(err)
+		if ok {
+			switch st.Code() {
+			case codes.NotFound:
+				c.JSON(http.StatusNotFound, gin.H{"error": st.Message()})
+			case codes.FailedPrecondition, codes.InvalidArgument:
+				c.JSON(http.StatusBadRequest, gin.H{"error": st.Message()})
+			default:
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+			}
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "unknown error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 
 func (s *Server) GetLoans(c *gin.Context) {
