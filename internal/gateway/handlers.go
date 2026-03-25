@@ -82,7 +82,7 @@ func SetupApi(router *gin.Engine, server *Server) {
 		accounts.GET("", server.GetAccounts)
 		accounts.GET("/:accountNumber", server.GetAccountByNumber)
 		accounts.PATCH("/:accountNumber/name", server.UpdateAccountName)
-		accounts.PATCH("/:accountNumber/limit", server.UpdateAccountLimits)
+		accounts.PATCH("/:accountNumber/limit", TOTPMiddleware(server.TOTPClient), server.UpdateAccountLimits)
 	}
 
 	loans := api.Group("/loans", AuthenticatedMiddleware(server.UserClient))
