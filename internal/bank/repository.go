@@ -1135,6 +1135,9 @@ func (s *Server) ConfirmTransfer(transferID int64, verificationCode string) erro
 	}
 
 	_, err = tx.Exec(`UPDATE transfers SET status = 'realized' WHERE transaction_id = $1`, t.Transaction_id)
+	if err != nil {
+		return err
+	}
 	return tx.Commit()
 }
 
