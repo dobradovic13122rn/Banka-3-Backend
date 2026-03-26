@@ -1004,16 +1004,26 @@ func (s *Server) ProcessPayment(from_account string, to_account string, amount i
 		if _, err := s.DecreaseAccountBalance(tx, from_account, amount); err != nil {
 			return nil, nil, err
 		}
+
 		// B. Dodaj banci (Source)
 		_, err = tx.Exec(`UPDATE accounts SET balance = balance + $1 WHERE currency = $2 AND owner = (SELECT id FROM clients WHERE email = $3)`,
 			amount, fromAcc.Currency, systemEmail)
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to credit bank source account: %w", err)
+		}
+
 		// C. Skini banci (Target)
 		_, err = tx.Exec(`UPDATE accounts SET balance = balance - $1 WHERE currency = $2 AND owner = (SELECT id FROM clients WHERE email = $3)`,
 			finalAmount, toAcc.Currency, systemEmail)
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to debit bank target account: %w", err)
+		}
+
 		// D. Dodaj primaocu (Target)
 		if _, err := s.IncreaseAccountBalance(tx, to_account, finalAmount); err != nil {
 			return nil, nil, err
 		}
+
 	} else {
 		// Ista valuta: Direktno
 		if _, err := s.DecreaseAccountBalance(tx, from_account, amount); err != nil {
