@@ -9,6 +9,7 @@ import (
 	"time"
 
 	exchangepb "github.com/RAF-SI-2025/Banka-3-Backend/gen/exchange"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -18,9 +19,20 @@ import (
 	userpb "github.com/RAF-SI-2025/Banka-3-Backend/gen/user"
 )
 
+func setupCors(router *gin.Engine) {
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowMethods:     []string{"GET, POST, PUT, PATCH, DELETE, OPTIONS"},
+		AllowHeaders:     []string{"Content-Type", "Authorization", "TOTP", "X-Requested-With"},
+		ExposeHeaders:    []string{"Content-Length", "X-Custom-Header"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
+}
+
 func SetupApi(router *gin.Engine, server *Server) {
 	router.GET("/healthz", server.Healthz)
-	router.Use(CORSMiddleware())
+	setupCors(router)
 	api := router.Group("/api")
 	{
 		api.POST("/login", server.Login)
