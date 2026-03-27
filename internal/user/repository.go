@@ -407,7 +407,6 @@ func (s *Server) GetAllEmployees(email *string, name *string, lastName *string, 
 func (s *Server) UpdateEmployee_(emp *Employee) (*Employee, error) {
 
 	updates := map[string]any{
-		"first_name":   emp.First_name,
 		"last_name":    emp.Last_name,
 		"gender":       emp.Gender,
 		"phone_number": emp.Phone_number,

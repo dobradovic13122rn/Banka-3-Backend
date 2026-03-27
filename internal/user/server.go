@@ -154,7 +154,6 @@ func (s *Server) UpdateEmployee(_ context.Context, req *userpb.UpdateEmployeeReq
 	println("here1")
 
 	emp := Employee{
-		First_name:   req.FirstName,
 		Last_name:    req.LastName,
 		Gender:       req.Gender,
 		Phone_number: req.PhoneNumber,
