@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"time"
 
@@ -111,5 +112,28 @@ func (s *Server) EnrollConfirm(_ context.Context, req *userpb.EnrollConfirmReque
 	}
 	return &userpb.EnrollConfirmResponse{
 		Success: true,
+	}, nil
+}
+
+func (s *Server) TOTPStatus(_ context.Context, req *userpb.TOTPStatusRequest) (*userpb.TOTPStatusResponse, error) {
+	client, err := s.GetClientByEmail(req.Email)
+	if err != nil {
+		if errors.Is(err, ErrUserNotFound) {
+			return nil, status.Error(codes.NotFound, err.Error())
+		}
+		return nil, err
+	}
+	userId := client.Id
+	active, err := s.totpStatus(userId)
+	if err != nil {
+		if errors.Is(err, ErrUserNotFound) || errors.Is(err, sql.ErrNoRows) {
+			return &userpb.TOTPStatusResponse{
+				Active: false,
+			}, nil
+		}
+		return nil, err
+	}
+	return &userpb.TOTPStatusResponse{
+		Active: *active,
 	}, nil
 }

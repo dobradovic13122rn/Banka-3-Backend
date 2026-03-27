@@ -539,3 +539,17 @@ func (s *Server) EnableTOTP(tx *sql.Tx, id uint64, tempSecret string) error {
 	}
 	return nil
 }
+
+func (s *Server) totpStatus(id uint64) (*bool, error) {
+	var active bool
+	row := s.database.QueryRow(`
+		SELECT enabled
+		FROM verification_codes
+		WHERE client_id = $1
+	`, id)
+	err := row.Scan(&active)
+	if err != nil {
+		return nil, ErrUserNotFound
+	}
+	return &active, nil
+}
