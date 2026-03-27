@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -14,8 +15,11 @@ import (
 	"errors"
 
 	bankpb "github.com/RAF-SI-2025/Banka-3-Backend/gen/bank"
+	exchangepb "github.com/RAF-SI-2025/Banka-3-Backend/gen/exchange"
 	"github.com/go-pdf/fpdf"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -23,15 +27,26 @@ import (
 
 type Server struct {
 	bankpb.UnimplementedBankServiceServer
-	database *sql.DB
-	db_gorm  *gorm.DB
+	database        *sql.DB
+	db_gorm         *gorm.DB
+	ExchangeService exchangepb.ExchangeServiceClient
 }
 
-func NewServer(database *sql.DB, gorm_db *gorm.DB) *Server {
-	return &Server{
-		database: database,
-		db_gorm:  gorm_db,
+func NewServer(database *sql.DB, gorm_db *gorm.DB) (*Server, error) {
+	exchangeAddr := os.Getenv("EXCHANGE_GRPC_ADDR")
+	if exchangeAddr == "" {
+		exchangeAddr = "exhcange:50051"
 	}
+	exchangeConn, err := grpc.NewClient(exchangeAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return nil, err
+	}
+
+	return &Server{
+		database:        database,
+		db_gorm:         gorm_db,
+		ExchangeService: exchangepb.NewExchangeServiceClient(exchangeConn),
+	}, nil
 }
 
 func mapCompanyToProto(company *Company) *bankpb.Company {

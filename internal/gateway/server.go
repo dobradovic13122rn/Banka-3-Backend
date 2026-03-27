@@ -17,7 +17,7 @@ type Server struct {
 	TOTPClient         userpb.TOTPServiceClient
 	NotificationClient notificationpb.NotificationServiceClient
 	BankClient         bankpb.BankServiceClient
-	ExchangeClinet     exchangepb.ExchangeServiceClient
+	ExchangeClient     exchangepb.ExchangeServiceClient
 }
 
 func NewServer() (*Server, error) {
@@ -72,6 +72,6 @@ func NewServer() (*Server, error) {
 		TOTPClient:         userpb.NewTOTPServiceClient(userConn),
 		NotificationClient: notificationpb.NewNotificationServiceClient(notificationConn),
 		BankClient:         bankpb.NewBankServiceClient(bankConn),
-		ExchangeClinet:     exchangepb.NewExchangeServiceClient(exchangeConn),
+		ExchangeClient:     exchangepb.NewExchangeServiceClient(exchangeConn),
 	}, nil
 }

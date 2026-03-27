@@ -9,7 +9,7 @@ import (
 )
 
 func (s *Server) GetExchangeRates(c *gin.Context) {
-	resp, err := s.ExchangeClinet.GetExchangeRates(c.Request.Context(), &exchangepb.ExchangeRateListRequest{})
+	resp, err := s.ExchangeClient.GetExchangeRates(c.Request.Context(), &exchangepb.ExchangeRateListRequest{})
 	if err != nil {
 		st, _ := status.FromError(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": st.Message()})
@@ -50,7 +50,7 @@ func (s *Server) ConvertMoney(c *gin.Context) {
 		return
 	}
 
-	resp, err := s.ExchangeClinet.ConvertMoney(c.Request.Context(), &exchangepb.ConversionRequest{
+	resp, err := s.ExchangeClient.ConvertMoney(c.Request.Context(), &exchangepb.ConversionRequest{
 		FromCurrency: req.FromCurrency,
 		ToCurrency:   req.ToCurrency,
 		Amount:       req.Amount,

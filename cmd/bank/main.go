@@ -51,8 +51,10 @@ func main() {
 	log.Println("connected to database...")
 	defer func() { _ = db.Close() }()
 
-	bankService := internalBank.NewServer(db, gorm_db)
-
+	bankService, err := internalBank.NewServer(db, gorm_db)
+	if err != nil {
+		log.Fatalf("failed to start bank service: %v", err)
+	}
 	stopScheduler := bankService.StartScheduler()
 	defer stopScheduler()
 

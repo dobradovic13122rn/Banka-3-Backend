@@ -18,7 +18,8 @@ func newTestServer(t *testing.T) (*Server, sqlmock.Sqlmock, *sql.DB) {
 	if err != nil {
 		t.Fatalf("sqlmock.New: %v", err)
 	}
-	return NewServer(db, nil), mock, db
+	server, _ := NewServer(db, nil)
+	return server, mock, db
 }
 
 func newGormTestServer(t *testing.T) (*Server, sqlmock.Sqlmock, *sql.DB) {
@@ -33,7 +34,8 @@ func newGormTestServer(t *testing.T) (*Server, sqlmock.Sqlmock, *sql.DB) {
 	if err != nil {
 		t.Fatalf("gorm.Open: %v", err)
 	}
-	return NewServer(db, gormDB), mock, db
+	server, _ := NewServer(db, gormDB)
+	return server, mock, db
 }
 
 func startNotificationTestServer(t *testing.T, handler notificationpb.NotificationServiceServer) (string, func()) {
