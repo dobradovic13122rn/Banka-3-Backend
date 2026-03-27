@@ -144,14 +144,11 @@ func (s *Server) GetEmployees(_ context.Context, req *userpb.GetEmployeesRequest
 }
 
 func (s *Server) UpdateEmployee(_ context.Context, req *userpb.UpdateEmployeeRequest) (*userpb.GetEmployeeResponse, error) {
-	println("here")
-
 	var permissions []Permission
 	for _, perm := range req.Permissions {
 		// yes these are invalid. i don't care
 		permissions = append(permissions, Permission{Id: 0, Name: perm})
 	}
-	println("here1")
 
 	emp := Employee{
 		Last_name:    req.LastName,
@@ -165,8 +162,6 @@ func (s *Server) UpdateEmployee(_ context.Context, req *userpb.UpdateEmployeeReq
 		Updated_at:   time.Now(),
 		Permissions:  permissions,
 	}
-
-	println("here2")
 
 	updated, err := s.UpdateEmployee_(&emp)
 	if err != nil {
