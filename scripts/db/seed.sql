@@ -4,7 +4,8 @@ VALUES
     ('trade_stocks'),
     ('view_stocks'),
     ('manage_contracts'),
-    ('manage_insurance')
+    ('manage_insurance'),
+    ('manage_loans')
 ON CONFLICT (name) DO NOTHING;
 
 -- default admin (password: "Admin123!")
