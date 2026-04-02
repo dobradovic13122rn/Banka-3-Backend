@@ -129,7 +129,7 @@ func (s *TOTPServer) EnrollBegin(_ context.Context, req *userpb.EnrollBeginReque
 
 func generateBackupCodes(num uint64) (*[]string, error) {
 	var codes []string
-	for _ = range num {
+	for range num {
 		random, err := rand.Int(rand.Reader, big.NewInt(999999))
 		if err != nil {
 			return nil, err
