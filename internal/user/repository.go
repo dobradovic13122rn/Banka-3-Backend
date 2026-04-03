@@ -260,7 +260,12 @@ func create_user_from_model[T Client | Employee](user T, s *Server) error {
 
 func getUserByAttribute[T Client | Employee](user T, s *Server, attribute_name string, attribute_value any) (*T, error) {
 	var ret T
-	err := s.db_gorm.Preload("Permissions").Where(attribute_name+" = ?", attribute_value).First(&ret).Error
+	var err error
+	if reflect.TypeOf(any(user)) == reflect.TypeFor[Employee]() {
+		err = s.db_gorm.Preload("Permissions").Where(attribute_name+" = ?", attribute_value).First(&ret).Error
+	} else {
+		err = s.db_gorm.Model(&user).Where(attribute_name+" = ?", attribute_value).First(&ret).Error
+	}
 	if err != nil {
 		log.Println("Error from getEmployeeByAttribute: ", err)
 		return nil, err
