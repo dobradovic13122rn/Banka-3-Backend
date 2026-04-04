@@ -40,6 +40,8 @@ func AuthenticatedMiddleware(user userpb.UserServiceClient) gin.HandlerFunc {
 		c.Set("email", resp.Sub)
 		c.Set("exp", resp.Exp)
 		c.Set("iat", resp.Iat)
+		c.Set("permissions", resp.Permissions)
+		c.Set("role", resp.Role)
 		c.Next()
 	}
 }
@@ -77,30 +79,28 @@ func TOTPMiddleware(totp userpb.TOTPServiceClient) gin.HandlerFunc {
 	}
 }
 
-func PermissionMiddleware(user userpb.UserServiceClient) func(...string) gin.HandlerFunc {
-	return func(permissions ...string) gin.HandlerFunc {
+func PermissionMiddleware() func(...string) gin.HandlerFunc {
+	return func(requiredPerms ...string) gin.HandlerFunc {
 		return func(c *gin.Context) {
-			email, exists := c.Get("email")
+			permsVal, exists := c.Get("permissions")
 			if !exists {
 				c.AbortWithStatus(401)
 				return
 			}
 
-			emp, err := user.GetEmployeeByEmail(c, &userpb.GetEmployeeByEmailRequest{
-				Email: email.(string),
-			})
-			if err != nil {
+			userPerms, ok := permsVal.([]string)
+			if !ok {
 				c.AbortWithStatus(403)
 				return
 			}
 
-			if slices.Contains(emp.Permissions, "admin") {
+			if slices.Contains(userPerms, "admin") {
 				c.Next()
 				return
 			}
 
-			for _, perm := range permissions {
-				if !slices.Contains(emp.Permissions, perm) {
+			for _, perm := range requiredPerms {
+				if !slices.Contains(userPerms, perm) {
 					c.AbortWithStatus(403)
 					return
 				}

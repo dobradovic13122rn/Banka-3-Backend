@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
@@ -8,6 +9,7 @@ import (
 	"os"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/redis/go-redis/v9"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"gorm.io/driver/postgres"
@@ -58,7 +60,20 @@ func main() {
 		log.Fatalf("JWT secrets not set, exiting...")
 	}
 
-	userService := internalUser.NewServer(accessJwtSecret, refreshJwtSecret, db, gorm_db)
+	redisAddr := os.Getenv("REDIS_ADDR")
+	if redisAddr == "" {
+		redisAddr = "redis:6379"
+	}
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     redisAddr,
+		Password: os.Getenv("REDIS_PASSWORD"),
+	})
+	if err := rdb.Ping(context.Background()).Err(); err != nil {
+		log.Fatalf("failed to connect to Redis at %s: %v", redisAddr, err)
+	}
+	log.Println("connected to Redis...")
+
+	userService := internalUser.NewServer(accessJwtSecret, refreshJwtSecret, db, gorm_db, rdb)
 
 	srv := grpc.NewServer()
 	user.RegisterUserServiceServer(srv, userService)
