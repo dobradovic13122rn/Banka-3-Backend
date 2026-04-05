@@ -24,13 +24,12 @@ import (
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 
-	"github.com/RAF-SI-2025/Banka-3-Backend/gen/notification"
 	notificationpb "github.com/RAF-SI-2025/Banka-3-Backend/gen/notification"
 	userpb "github.com/RAF-SI-2025/Banka-3-Backend/gen/user"
 )
 
 type Connections struct {
-	NotificationClient notification.NotificationServiceClient
+	NotificationClient notificationpb.NotificationServiceClient
 	Sql_db             *sql.DB
 	Gorm               *gorm.DB
 }

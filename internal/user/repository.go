@@ -320,7 +320,7 @@ func updateUserRecord[T Client | Employee](user T, s *Server) (*T, error) {
 		return perms.Id
 	}
 
-	var result *gorm.DB = s.db_gorm
+	var result = s.db_gorm
 	switch any(user).(type) {
 	case Client:
 		if userExists(user, s) {
