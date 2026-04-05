@@ -434,7 +434,7 @@ func (s *TOTPServer) EnableTOTP(tx *sql.Tx, id uint64, tempSecret string) error 
 func (s *TOTPServer) DisableTOTP(tx *sql.Tx, id uint64) error {
 	_, err := tx.Exec(`
 		UPDATE verification_codes
-		SET enabled = FALSE,
+		SET enabled = FALSE
 		WHERE client_id = $1
 	`, id)
 
