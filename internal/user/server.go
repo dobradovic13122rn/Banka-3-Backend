@@ -751,18 +751,35 @@ func (s *Server) CreateEmployeeAccount(ctx context.Context, req *userpb.CreateEm
 		log.Printf("Error generating salt %s", salt_err.Error())
 	}
 
+	permissions := make([]Permission, 0, len(req.Permissions))
+	for _, permName := range req.Permissions {
+		var perm Permission
+		if err := s.db_gorm.First(&perm, "name = ?", permName).Error; err != nil {
+			log.Printf("Permission %q not found, skipping", permName)
+			continue
+		}
+		permissions = append(permissions, perm)
+	}
+
 	employee := Employee{First_name: req.FirstName,
 		Last_name: req.LastName, Date_of_birth: time.Unix(req.BirthDate, 0),
 		Gender: req.Gender, Email: req.Email, Phone_number: req.PhoneNumber,
 		Address: req.Address, Username: req.Username, Position: req.Position,
 		Department: req.Department, Salt_password: salt,
-		Password: []byte{}}
+		Password: []byte{}, Permissions: permissions}
 
 	err := create_user_from_model(employee, s)
 
 	if err != nil {
 		log.Printf("Error in user creation%s", err.Error())
 		return nil, status.Error(codes.Internal, "Employee creation failed")
+	}
+
+	// Re-fetch to get the auto-assigned ID and properly loaded permissions
+	created, err := getUserByAttribute(Employee{}, s.db_gorm, "email", employee.Email)
+	if err != nil {
+		log.Printf("Employee created but failed to fetch: %s", err.Error())
+		return employee.toProtobuf(), nil
 	}
 
 	// Send activation email so the employee can set their own password
@@ -773,6 +790,6 @@ func (s *Server) CreateEmployeeAccount(ctx context.Context, req *userpb.CreateEm
 		log.Printf("Employee created but activation email failed: %s", emailErr.Error())
 	}
 
-	return employee.toProtobuf(), nil
+	return created.toProtobuf(), nil
 
 }
