@@ -16,6 +16,8 @@ import (
 
 	bankpb "github.com/RAF-SI-2025/Banka-3-Backend/gen/bank"
 	exchangepb "github.com/RAF-SI-2025/Banka-3-Backend/gen/exchange"
+	notificationpb "github.com/RAF-SI-2025/Banka-3-Backend/gen/notification"
+	userpb "github.com/RAF-SI-2025/Banka-3-Backend/gen/user"
 	"github.com/go-pdf/fpdf"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -27,9 +29,11 @@ import (
 
 type Server struct {
 	bankpb.UnimplementedBankServiceServer
-	database        *sql.DB
-	db_gorm         *gorm.DB
-	ExchangeService exchangepb.ExchangeServiceClient
+	database            *sql.DB
+	db_gorm             *gorm.DB
+	ExchangeService     exchangepb.ExchangeServiceClient
+	NotificationService notificationpb.NotificationServiceClient
+	UserService         userpb.UserServiceClient
 }
 
 func NewServer(database *sql.DB, gorm_db *gorm.DB) (*Server, error) {
@@ -42,10 +46,30 @@ func NewServer(database *sql.DB, gorm_db *gorm.DB) (*Server, error) {
 		return nil, err
 	}
 
+	notificationAddr := os.Getenv("NOTIFICATION_GRPC_ADDR")
+	if notificationAddr == "" {
+		notificationAddr = "notification:50051"
+	}
+	notificationConn, err := grpc.NewClient(notificationAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return nil, err
+	}
+
+	userAddr := os.Getenv("USER_GRPC_ADDR")
+	if userAddr == "" {
+		userAddr = "user:50051"
+	}
+	userConn, err := grpc.NewClient(userAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return nil, err
+	}
+
 	return &Server{
-		database:        database,
-		db_gorm:         gorm_db,
-		ExchangeService: exchangepb.NewExchangeServiceClient(exchangeConn),
+		database:            database,
+		db_gorm:             gorm_db,
+		ExchangeService:     exchangepb.NewExchangeServiceClient(exchangeConn),
+		NotificationService: notificationpb.NewNotificationServiceClient(notificationConn),
+		UserService:         userpb.NewUserServiceClient(userConn),
 	}, nil
 }
 
@@ -1134,7 +1158,7 @@ func validateCreateAccountInput(name string, owner int64, currency string, owner
 	return nil
 }
 
-func (s *Server) CreateAccount(_ context.Context, req *bankpb.CreateAccountRequest) (*bankpb.CreateAccountResponse, error) {
+func (s *Server) CreateAccount(ctx context.Context, req *bankpb.CreateAccountRequest) (*bankpb.CreateAccountResponse, error) {
 	name := strings.TrimSpace(req.Name)
 	currency := strings.TrimSpace(req.Currency)
 	ownerType := strings.TrimSpace(strings.ToLower(req.OwnerType))
@@ -1185,6 +1209,19 @@ func (s *Server) CreateAccount(_ context.Context, req *bankpb.CreateAccountReque
 			return nil, status.Error(codes.Internal, "account creation failed")
 		}
 	}
+
+	client, err := s.UserService.GetClientById(ctx, &userpb.GetUserByIdRequest{
+		Id: req.Owner,
+	})
+	if err != nil {
+		// return
+		return nil, status.Error(codes.NotFound, "couldn't find owner client")
+	}
+	email := client.Email
+	s.NotificationService.SendBankAccountCreationEmail(ctx, &notificationpb.SendBankAccountCreationEmailRequest{
+		ToAddr:      email,
+		AccountName: name,
+	})
 
 	return &bankpb.CreateAccountResponse{
 		Valid:         true,

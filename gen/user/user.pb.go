@@ -1665,7 +1665,7 @@ func (x *GetEmployeesResponse) GetEmployees() []*GetEmployeesResponse_Employee {
 	return nil
 }
 
-type GetEmployeeByIdRequest struct {
+type GetUserByIdRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -1679,11 +1679,11 @@ func (x *GetEmployeeByIdRequest) Reset() {
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetEmployeeByIdRequest) String() string {
+func (x *GetUserByIdRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetEmployeeByIdRequest) ProtoMessage() {}
+func (*GetUserByIdRequest) ProtoMessage() {}
 
 func (x *GetEmployeeByIdRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_user_user_proto_msgTypes[27]
@@ -1697,40 +1697,57 @@ func (x *GetEmployeeByIdRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
+<<<<<<< HEAD
 // Deprecated: Use GetEmployeeByIdRequest.ProtoReflect.Descriptor instead.
 func (*GetEmployeeByIdRequest) Descriptor() ([]byte, []int) {
 	return file_user_user_proto_rawDescGZIP(), []int{27}
+=======
+// Deprecated: Use GetUserByIdRequest.ProtoReflect.Descriptor instead.
+func (*GetUserByIdRequest) Descriptor() ([]byte, []int) {
+	return file_user_user_proto_rawDescGZIP(), []int{25}
+>>>>>>> 65c6755 (send email after bank account creation)
 }
 
-func (x *GetEmployeeByIdRequest) GetId() int64 {
+func (x *GetUserByIdRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
 	return 0
 }
 
-type GetEmployeeByEmailRequest struct {
+type GetUserByEmailRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
+<<<<<<< HEAD
 func (x *GetEmployeeByEmailRequest) Reset() {
 	*x = GetEmployeeByEmailRequest{}
 	mi := &file_user_user_proto_msgTypes[28]
+=======
+func (x *GetUserByEmailRequest) Reset() {
+	*x = GetUserByEmailRequest{}
+	mi := &file_user_user_proto_msgTypes[26]
+>>>>>>> 65c6755 (send email after bank account creation)
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetEmployeeByEmailRequest) String() string {
+func (x *GetUserByEmailRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetEmployeeByEmailRequest) ProtoMessage() {}
+func (*GetUserByEmailRequest) ProtoMessage() {}
 
+<<<<<<< HEAD
 func (x *GetEmployeeByEmailRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_user_user_proto_msgTypes[28]
+=======
+func (x *GetUserByEmailRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_user_proto_msgTypes[26]
+>>>>>>> 65c6755 (send email after bank account creation)
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1741,12 +1758,18 @@ func (x *GetEmployeeByEmailRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
+<<<<<<< HEAD
 // Deprecated: Use GetEmployeeByEmailRequest.ProtoReflect.Descriptor instead.
 func (*GetEmployeeByEmailRequest) Descriptor() ([]byte, []int) {
 	return file_user_user_proto_rawDescGZIP(), []int{28}
+=======
+// Deprecated: Use GetUserByEmailRequest.ProtoReflect.Descriptor instead.
+func (*GetUserByEmailRequest) Descriptor() ([]byte, []int) {
+	return file_user_user_proto_rawDescGZIP(), []int{26}
+>>>>>>> 65c6755 (send email after bank account creation)
 }
 
-func (x *GetEmployeeByEmailRequest) GetEmail() string {
+func (x *GetUserByEmailRequest) GetEmail() string {
 	if x != nil {
 		return x.Email
 	}
@@ -1891,6 +1914,106 @@ func (x *GetEmployeeResponse) GetPermissions() []string {
 		return x.Permissions
 	}
 	return nil
+}
+
+type GetClientResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	FirstName     string                 `protobuf:"bytes,2,opt,name=first_name,json=firstName,proto3" json:"first_name,omitempty"`
+	LastName      string                 `protobuf:"bytes,3,opt,name=last_name,json=lastName,proto3" json:"last_name,omitempty"`
+	BirthDate     int64                  `protobuf:"varint,4,opt,name=birth_date,json=birthDate,proto3" json:"birth_date,omitempty"`
+	Gender        string                 `protobuf:"bytes,5,opt,name=gender,proto3" json:"gender,omitempty"`
+	Email         string                 `protobuf:"bytes,6,opt,name=email,proto3" json:"email,omitempty"`
+	PhoneNumber   string                 `protobuf:"bytes,7,opt,name=phone_number,json=phoneNumber,proto3" json:"phone_number,omitempty"`
+	Address       string                 `protobuf:"bytes,8,opt,name=address,proto3" json:"address,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetClientResponse) Reset() {
+	*x = GetClientResponse{}
+	mi := &file_user_user_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetClientResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetClientResponse) ProtoMessage() {}
+
+func (x *GetClientResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_user_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetClientResponse.ProtoReflect.Descriptor instead.
+func (*GetClientResponse) Descriptor() ([]byte, []int) {
+	return file_user_user_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *GetClientResponse) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *GetClientResponse) GetFirstName() string {
+	if x != nil {
+		return x.FirstName
+	}
+	return ""
+}
+
+func (x *GetClientResponse) GetLastName() string {
+	if x != nil {
+		return x.LastName
+	}
+	return ""
+}
+
+func (x *GetClientResponse) GetBirthDate() int64 {
+	if x != nil {
+		return x.BirthDate
+	}
+	return 0
+}
+
+func (x *GetClientResponse) GetGender() string {
+	if x != nil {
+		return x.Gender
+	}
+	return ""
+}
+
+func (x *GetClientResponse) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *GetClientResponse) GetPhoneNumber() string {
+	if x != nil {
+		return x.PhoneNumber
+	}
+	return ""
+}
+
+func (x *GetClientResponse) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
 }
 
 type UpdateEmployeeRequest struct {
@@ -2236,10 +2359,10 @@ const file_user_user_proto_rawDesc = "" +
 	"\x05email\x18\x04 \x01(\tR\x05email\x12\x1a\n" +
 	"\bposition\x18\x05 \x01(\tR\bposition\x12!\n" +
 	"\fphone_number\x18\x06 \x01(\tR\vphoneNumber\x12\x16\n" +
-	"\x06active\x18\b \x01(\bR\x06active\"(\n" +
-	"\x16GetEmployeeByIdRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\"1\n" +
-	"\x19GetEmployeeByEmailRequest\x12\x14\n" +
+	"\x06active\x18\b \x01(\bR\x06active\"$\n" +
+	"\x12GetUserByIdRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\"-\n" +
+	"\x15GetUserByEmailRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\"\xfd\x02\n" +
 	"\x13GetEmployeeResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1d\n" +
@@ -2259,7 +2382,18 @@ const file_user_user_proto_rawDesc = "" +
 	"department\x18\v \x01(\tR\n" +
 	"department\x12\x16\n" +
 	"\x06active\x18\f \x01(\bR\x06active\x12 \n" +
-	"\vpermissions\x18\r \x03(\tR\vpermissions\"\xae\x02\n" +
+	"\vpermissions\x18\r \x03(\tR\vpermissions\"\xe9\x01\n" +
+	"\x11GetClientResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1d\n" +
+	"\n" +
+	"first_name\x18\x02 \x01(\tR\tfirstName\x12\x1b\n" +
+	"\tlast_name\x18\x03 \x01(\tR\blastName\x12\x1d\n" +
+	"\n" +
+	"birth_date\x18\x04 \x01(\x03R\tbirthDate\x12\x16\n" +
+	"\x06gender\x18\x05 \x01(\tR\x06gender\x12\x14\n" +
+	"\x05email\x18\x06 \x01(\tR\x05email\x12!\n" +
+	"\fphone_number\x18\a \x01(\tR\vphoneNumber\x12\x18\n" +
+	"\aaddress\x18\b \x01(\tR\aaddress\"\xae\x02\n" +
 	"\x15UpdateEmployeeRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1d\n" +
 	"\n" +
