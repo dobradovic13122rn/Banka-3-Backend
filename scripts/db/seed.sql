@@ -19,7 +19,7 @@ INSERT INTO employees (
     position, department, active
 )
 VALUES (
-    'Admin', 'Admin', '1990-01-01', 'M', 'admin@banka.raf',
+    'Admin', 'Admin', '1990-01-01', 'M', :'admin_email',
     '+381600000000', 'N/A', 'admin',
     '\x78db8c5a70624a77ff540ee38898086ab4db699e8905399b8a84c485cd7c4953'::BYTEA,
     '\xf5e2740f7afc0e0dd44968b7364fc102'::BYTEA,
@@ -31,7 +31,7 @@ ON CONFLICT (email) DO NOTHING;
 INSERT INTO employee_permissions (employee_id, permission_id)
 SELECT e.id, p.id
 FROM employees e, permissions p
-WHERE e.email = 'admin@banka.raf' AND p.name = 'admin'
+WHERE e.email = :'admin_email' AND p.name = 'admin'
 ON CONFLICT DO NOTHING;
 
 -- full-employee employee (password: "Test1234!") — has all permissions for testing
@@ -86,7 +86,7 @@ INSERT INTO clients (
     phone_number, address, password, salt_password
 )
 VALUES (
-    'Petar', 'Petrovic', '1990-05-20', 'M', 'petar@primer.raf',
+    'Petar', 'Petrovic', '1990-05-20', 'M', :'client_email',
     '+381645555555', 'Njegoseva 25',
     '\xa514f71947f5447cdfc2845f40d020cea4146ba28e84cb1a82662a6286f8228d'::BYTEA,
     '\x11223344556677889900aabbccddeeff'::BYTEA
@@ -231,7 +231,7 @@ SELECT
     0 AS daily_expenditure,
     0 AS monthly_expenditure
 FROM clients c, employees e
-WHERE c.email = 'system@banka3.rs' AND e.email = 'admin@banka.raf'
+WHERE c.email = 'system@banka3.rs' AND e.email = :'admin_email'
 ON CONFLICT (number) DO NOTHING;
 
 INSERT INTO accounts (number, name, owner, balance, created_by, valid_until, currency, active, owner_type, account_type, maintainance_cost, daily_limit, monthly_limit, daily_expenditure, monthly_expenditure)
@@ -252,7 +252,7 @@ SELECT
     0 AS daily_expenditure,
     0 AS monthly_expenditure
 FROM clients c, employees e
-WHERE c.email = 'system@banka3.rs' AND e.email = 'admin@banka.raf'
+WHERE c.email = 'system@banka3.rs' AND e.email = :'admin_email'
 ON CONFLICT (number) DO NOTHING;
 
 INSERT INTO accounts (number, name, owner, balance, created_by, valid_until, currency, active, owner_type, account_type, maintainance_cost, daily_limit, monthly_limit, daily_expenditure, monthly_expenditure)
@@ -273,7 +273,7 @@ SELECT
     0 AS daily_expenditure,
     0 AS monthly_expenditure
 FROM clients c, employees e
-WHERE c.email = 'system@banka3.rs' AND e.email = 'admin@banka.raf'
+WHERE c.email = 'system@banka3.rs' AND e.email = :'admin_email'
 ON CONFLICT (number) DO NOTHING;
 
 INSERT INTO accounts (number, name, owner, balance, created_by, valid_until, currency, active, owner_type, account_type, maintainance_cost, daily_limit, monthly_limit, daily_expenditure, monthly_expenditure)
@@ -294,7 +294,7 @@ SELECT
     0 AS daily_expenditure,
     0 AS monthly_expenditure
 FROM clients c, employees e
-WHERE c.email = 'system@banka3.rs' AND e.email = 'admin@banka.raf'
+WHERE c.email = 'system@banka3.rs' AND e.email = :'admin_email'
 ON CONFLICT (number) DO NOTHING;
 
 INSERT INTO accounts (number, name, owner, balance, created_by, valid_until, currency, active, owner_type, account_type, maintainance_cost, daily_limit, monthly_limit, daily_expenditure, monthly_expenditure)
@@ -315,7 +315,7 @@ SELECT
     0 AS daily_expenditure,
     0 AS monthly_expenditure
 FROM clients c, employees e
-WHERE c.email = 'system@banka3.rs' AND e.email = 'admin@banka.raf'
+WHERE c.email = 'system@banka3.rs' AND e.email = :'admin_email'
 ON CONFLICT (number) DO NOTHING;
 
 INSERT INTO accounts (number, name, owner, balance, created_by, valid_until, currency, active, owner_type, account_type, maintainance_cost, daily_limit, monthly_limit, daily_expenditure, monthly_expenditure)
@@ -336,7 +336,7 @@ SELECT
     0 AS daily_expenditure,
     0 AS monthly_expenditure
 FROM clients c, employees e
-WHERE c.email = 'system@banka3.rs' AND e.email = 'admin@banka.raf'
+WHERE c.email = 'system@banka3.rs' AND e.email = :'admin_email'
 ON CONFLICT (number) DO NOTHING;
 
 INSERT INTO accounts (number, name, owner, balance, created_by, valid_until, currency, active, owner_type, account_type, maintainance_cost, daily_limit, monthly_limit, daily_expenditure, monthly_expenditure)
@@ -357,7 +357,7 @@ SELECT
     0 AS daily_expenditure,
     0 AS monthly_expenditure
 FROM clients c, employees e
-WHERE c.email = 'system@banka3.rs' AND e.email = 'admin@banka.raf'
+WHERE c.email = 'system@banka3.rs' AND e.email = :'admin_email'
 ON CONFLICT (number) DO NOTHING;
 
 INSERT INTO accounts (number, name, owner, balance, created_by, valid_until, currency, active, owner_type, account_type, maintainance_cost, daily_limit, monthly_limit, daily_expenditure, monthly_expenditure)
@@ -378,7 +378,7 @@ SELECT
     0 AS daily_expenditure,
     0 AS monthly_expenditure
 FROM clients c, employees e
-WHERE c.email = 'system@banka3.rs' AND e.email = 'admin@banka.raf'
+WHERE c.email = 'system@banka3.rs' AND e.email = :'admin_email'
 ON CONFLICT (number) DO NOTHING;
 
 -------------------------------------------------------------------------------
@@ -416,7 +416,7 @@ SELECT
     0 AS daily_expenditure,
     0 AS monthly_expenditure
 FROM clients c, employees e
-WHERE c.email = 'petar@primer.raf' AND e.email = 'admin@banka.raf'
+WHERE c.email = :'client_email' AND e.email = :'admin_email'
 ON CONFLICT (number) DO NOTHING;
 
 INSERT INTO accounts (number, name, owner, balance, created_by, valid_until, currency, active, owner_type, account_type, maintainance_cost, daily_limit, monthly_limit, daily_expenditure, monthly_expenditure)
@@ -437,7 +437,7 @@ SELECT
     0 AS daily_expenditure,
     0 AS monthly_expenditure
 FROM clients c, employees e
-WHERE c.email = 'petar@primer.raf' AND e.email = 'admin@banka.raf'
+WHERE c.email = :'client_email' AND e.email = :'admin_email'
 ON CONFLICT (number) DO NOTHING;
 
 -- Marko - RSD checking + USD foreign
@@ -459,7 +459,7 @@ SELECT
     0 AS daily_expenditure,
     0 AS monthly_expenditure
 FROM clients c, employees e
-WHERE c.email = 'marko@primer.raf' AND e.email = 'admin@banka.raf'
+WHERE c.email = 'marko@primer.raf' AND e.email = :'admin_email'
 ON CONFLICT (number) DO NOTHING;
 
 INSERT INTO accounts (number, name, owner, balance, created_by, valid_until, currency, active, owner_type, account_type, maintainance_cost, daily_limit, monthly_limit, daily_expenditure, monthly_expenditure)
@@ -480,7 +480,7 @@ SELECT
     0 AS daily_expenditure,
     0 AS monthly_expenditure
 FROM clients c, employees e
-WHERE c.email = 'marko@primer.raf' AND e.email = 'admin@banka.raf'
+WHERE c.email = 'marko@primer.raf' AND e.email = :'admin_email'
 ON CONFLICT (number) DO NOTHING;
 
 -- Jovana - RSD checking + EUR + CHF foreign
@@ -502,7 +502,7 @@ SELECT
     0 AS daily_expenditure,
     0 AS monthly_expenditure
 FROM clients c, employees e
-WHERE c.email = 'jovana@primer.raf' AND e.email = 'admin@banka.raf'
+WHERE c.email = 'jovana@primer.raf' AND e.email = :'admin_email'
 ON CONFLICT (number) DO NOTHING;
 
 INSERT INTO accounts (number, name, owner, balance, created_by, valid_until, currency, active, owner_type, account_type, maintainance_cost, daily_limit, monthly_limit, daily_expenditure, monthly_expenditure)
@@ -523,7 +523,7 @@ SELECT
     0 AS daily_expenditure,
     0 AS monthly_expenditure
 FROM clients c, employees e
-WHERE c.email = 'jovana@primer.raf' AND e.email = 'admin@banka.raf'
+WHERE c.email = 'jovana@primer.raf' AND e.email = :'admin_email'
 ON CONFLICT (number) DO NOTHING;
 
 INSERT INTO accounts (number, name, owner, balance, created_by, valid_until, currency, active, owner_type, account_type, maintainance_cost, daily_limit, monthly_limit, daily_expenditure, monthly_expenditure)
@@ -544,7 +544,7 @@ SELECT
     0 AS daily_expenditure,
     0 AS monthly_expenditure
 FROM clients c, employees e
-WHERE c.email = 'jovana@primer.raf' AND e.email = 'admin@banka.raf'
+WHERE c.email = 'jovana@primer.raf' AND e.email = :'admin_email'
 ON CONFLICT (number) DO NOTHING;
 
 -------------------------------------------------------------------------------
@@ -585,7 +585,7 @@ FROM clients c WHERE c.email = 'marko@primer.raf';
 INSERT INTO payments (from_account, to_account, start_amount, end_amount, commission, recipient_id, transcaction_code, call_number, reason)
 SELECT
     '333000198765432110', '333000112345678910', 25000, 25000, 0, c.id, 290, '00445566', 'Kupovina laptopa'
-FROM clients c WHERE c.email = 'petar@primer.raf';
+FROM clients c WHERE c.email = :'client_email';
 
 -------------------------------------------------------------------------------
 -- Sample transfer (same-currency, Petar RSD -> Petar EUR via exchange)

@@ -4,9 +4,12 @@ export
 GO_IMAGE := golang:1.25
 GO_RUN   := docker run --rm -v $(PWD):/app -w /app $(GO_IMAGE)
 
-.PHONY: all up down down-v proto schema seed seed-custom nuke lint lint-l build build-l test test-l test-integration test-integration-l fmt fmt-l
+ADMIN_EMAIL  ?= admin@banka.raf
+CLIENT_EMAIL ?= petar@primer.raf
 
-all: proto up schema seed-custom
+.PHONY: all up down down-v proto schema seed nuke lint lint-l build build-l test test-l test-integration test-integration-l fmt fmt-l
+
+all: proto up schema seed
 
 up:
 	docker compose up -d --build
@@ -29,10 +32,9 @@ schema:
 	docker compose exec -T postgres psql -U $(POSTGRES_USER) -d $(POSTGRES_DB) < scripts/db/schema.sql
 
 seed:
-	docker compose exec -T postgres psql -U $(POSTGRES_USER) -d $(POSTGRES_DB) < scripts/db/seed.sql
-
-seed-custom:
-	sed -e "s/__ADMIN_EMAIL__/$$ADMIN_EMAIL/g" -e "s/__CLIENT_EMAIL__/$$CLIENT_EMAIL/g" scripts/db/seed.sql.template | docker compose exec -T postgres psql -U $(POSTGRES_USER) -d $(POSTGRES_DB)
+	docker compose exec -T postgres psql -U $(POSTGRES_USER) -d $(POSTGRES_DB) \
+		-v admin_email=$(ADMIN_EMAIL) -v client_email=$(CLIENT_EMAIL) \
+		< scripts/db/seed.sql
 
 nuke:
 	docker compose exec -T postgres psql -U $(POSTGRES_USER) -d $(POSTGRES_DB) -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
